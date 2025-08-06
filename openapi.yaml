@@ -1,0 +1,2338 @@
+openapi: 3.0.3
+info:
+  title: RGB Lightning Node
+  description: |-
+    This is the OpenAPI specification for the
+    [RGB Lightning Node](https://github.com/RGB-Tools/rgb-lightning-node) APIs.
+  license:
+    name: MIT
+    url: https://mit-license.org/
+  version: 0.1.0
+servers:
+  - url: http://localhost:3001
+  - url: http://localhost:3002
+  - url: http://localhost:3003
+tags:
+  - name: Channels
+    description: APIs to perform operations related to LN channels
+  - name: Peers
+    description: APIs to perform operations related to LN peers
+  - name: Payments
+    description: APIs to perform operations related to LN payments
+  - name: Invoices
+    description: APIs to perform operations related to LN invoices
+  - name: On-chain
+    description: APIs to perform on-chain operations
+  - name: RGB
+    description: APIs to perform RGB operations
+  - name: Swaps
+    description: APIs to perform asset swaps
+  - name: Other
+    description: APIs to perform other operations
+paths:
+  /address:
+    post:
+      tags:
+        - On-chain
+      summary: Get a Bitcoin address
+      description: Get a new Bitcoin address from the internal BDK wallet
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AddressResponse'
+  /assetbalance:
+    post:
+      tags:
+        - RGB
+      summary: Get the balance of an asset
+      description: Get the balance for the provided RGB asset
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AssetBalanceRequest'
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AssetBalanceResponse'
+  /assetmetadata:
+    post:
+      tags:
+        - RGB
+      summary: Get the metadata of an asset
+      description: Get the metadata for the provided RGB asset
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AssetMetadataRequest'
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AssetMetadataResponse'
+  /backup:
+    post:
+      tags:
+        - Other
+      summary: Backup the node
+      description: Create a backup of the node's data
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BackupRequest'
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EmptyResponse'
+  /btcbalance:
+    post:
+      tags:
+        - On-chain
+      summary: Get the BTC balance
+      description: Get the node's bitcoin balance for the vanilla and colored wallets
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BtcBalanceRequest'
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BtcBalanceResponse'
+  /changepassword:
+    post:
+      tags:
+        - Other
+      summary: Change the password
+      description: Change the node's password
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ChangePasswordRequest'
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EmptyResponse'
+  /checkindexerurl:
+    post:
+      tags:
+        - Other
+      summary: Check an indexer URL
+      description: Check the given indexer URL is valid
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CheckIndexerUrlRequest'
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CheckIndexerUrlResponse'
+  /checkproxyendpoint:
+    post:
+      tags:
+        - Other
+      summary: Check a proxy endpoint
+      description: Check the given proxy endpoint is valid
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CheckProxyEndpointRequest'
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EmptyResponse'
+  /closechannel:
+    post:
+      tags:
+        - Channels
+      summary: Close a channel
+      description: Close a LN channel cooperatively or forcibly
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CloseChannelRequest'
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EmptyResponse'
+  /connectpeer:
+    post:
+      tags:
+        - Peers
+      summary: Connect to a peer
+      description: Connect to the provided LN peer
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ConnectPeerRequest'
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EmptyResponse'
+  /createutxos:
+    post:
+      tags:
+        - RGB
+      summary: Create UTXOs
+      description: Create UTXOs to be used for RGB operations
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateUtxosRequest'
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EmptyResponse'
+  /decodelninvoice:
+    post:
+      tags:
+        - Invoices
+      summary: Decode a LN invoice
+      description: Decode the provided LN invoice string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DecodeLNInvoiceRequest'
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DecodeLNInvoiceResponse'
+  /decodergbinvoice:
+    post:
+      tags:
+        - RGB
+      summary: Decode an RGB invoice
+      description: Decode the provided RGB invoice string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DecodeRGBInvoiceRequest'
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DecodeRGBInvoiceResponse'
+  /disconnectpeer:
+    post:
+      tags:
+        - Peers
+      summary: Disconnect from a peer
+      description: Disconnect from the provided LN peer
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DisconnectPeerRequest'
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EmptyResponse'
+  /estimatefee:
+    post:
+      tags:
+        - On-chain
+      summary: Get fee estimation
+      description: Get on-chain fee estimation
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EstimateFeeRequest'
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EstimateFeeResponse'
+  /failtransfers:
+    post:
+      tags:
+        - RGB
+      summary: Fail RGB transfers
+      description: Set the status for eligible RGB transfers to
+        `TransferStatus::Failed`.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/FailTransfersRequest'
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FailTransfersResponse'
+  /getassetmedia:
+    post:
+      tags:
+        - RGB
+      summary: Get an asset media
+      description: Get the hex string of the media bytes of the provided media digest
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GetAssetMediaRequest'
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetAssetMediaResponse'
+  /getchannelid:
+    post:
+      tags:
+        - Channels
+      summary: Get a channel's ID
+      description: Get a channel's ID from its former temporary channel ID
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GetChannelIdRequest'
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetChannelIdResponse'
+  /getpayment:
+    post:
+      tags:
+        - Payments
+      summary: Get a payment
+      description: Get a payment by its payment hash
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GetPaymentRequest'
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetPaymentResponse'
+  /getswap:
+    post:
+      tags:
+        - Swaps
+      summary: Get a swap
+      description: Get a swap by its payment hash
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GetSwapRequest'
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetSwapResponse'
+  /init:
+    post:
+      tags:
+        - Other
+      summary: Init the node
+      description: Initialize a new node
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/InitRequest'
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InitResponse'
+  /invoicestatus:
+    post:
+      tags:
+        - Invoices
+      summary: Get an invoice status
+      description: Get the status of the provided LN invoice
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/InvoiceStatusRequest'
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InvoiceStatusResponse'
+  /issueassetcfa:
+    post:
+      tags:
+        - RGB
+      summary: Issue an RGB CFA asset
+      description: Issue an RGB CFA asset. To provide a media first call the /postassetmedia API.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/IssueAssetCFARequest'
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/IssueAssetCFAResponse'
+  /issueassetnia:
+    post:
+      tags:
+        - RGB
+      summary: Issue an RGB NIA asset
+      description: Issue an RGB NIA asset
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/IssueAssetNIARequest'
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/IssueAssetNIAResponse'
+  /issueassetuda:
+    post:
+      tags:
+        - RGB
+      summary: Issue an RGB UDA asset
+      description: Issue an RGB UDA asset. To provide a media first call the /postassetmedia API.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/IssueAssetUDARequest'
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/IssueAssetUDAResponse'
+  /keysend:
+    post:
+      tags:
+        - Payments
+      summary: Send to a peer spontaneously
+      description: Send bitcoins and RGB assets to a LN peer spontaneously (without a LN invoice)
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/KeysendRequest'
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/KeysendResponse'
+  /listassets:
+    post:
+      tags:
+        - RGB
+      summary: List assets
+      description: List the node's RGB assets
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ListAssetsRequest'
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListAssetsResponse'
+  /listchannels:
+    get:
+      tags:
+        - Channels
+      summary: List channels
+      description: List the node's LN channels
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListChannelsResponse'
+  /listpayments:
+    get:
+      tags:
+        - Payments
+      summary: List payments
+      description: List the node's LN payments
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListPaymentsResponse'
+  /listpeers:
+    get:
+      tags:
+        - Peers
+      summary: List peers
+      description: List the node's LN peers
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListPeersResponse'
+  /listswaps:
+    get:
+      tags:
+        - Swaps
+      summary: List swaps
+      description: List the node's swaps
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListSwapsResponse'
+  /listtransactions:
+    post:
+      tags:
+        - On-chain
+      summary: List transactions
+      description: List the node's on-chain transactions
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ListTransactionsRequest'
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListTransactionsResponse'
+  /listtransfers:
+    post:
+      tags:
+        - RGB
+      summary: List transfers
+      description: List the node's on-chain RGB transfers
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ListTransfersRequest'
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListTransfersResponse'
+  /listunspents:
+    post:
+      tags:
+        - On-chain
+      summary: List unspents
+      description: List the unspent outputs of the internal BDK wallet
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ListUnspentsRequest'
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListUnspentsResponse'
+  /lock:
+    post:
+      tags:
+        - Other
+      summary: Lock the node
+      description: Lock an unlocked node
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EmptyResponse'
+  /lninvoice:
+    post:
+      tags:
+        - Invoices
+      summary: Get a LN invoice
+      description: Get a LN invoice to receive a payment
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LNInvoiceRequest'
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LNInvoiceResponse'
+  /makerexecute:
+    post:
+      tags:
+        - Swaps
+      summary: Execute a maker swap
+      description: Execute a swap on the maker side
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MakerExecuteRequest'
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EmptyResponse'
+  /makerinit:
+    post:
+      tags:
+        - Swaps
+      summary: Init a maker swap
+      description: Init a swap on the maker side
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MakerInitRequest'
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MakerInitResponse'
+  /networkinfo:
+    get:
+      tags:
+        - Other
+      summary: Get network info
+      description: Get info on the Bitcoin network where the LN is running
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NetworkInfoResponse'
+  /nodeinfo:
+    get:
+      tags:
+        - Other
+      summary: Get node info
+      description: Get the LN node's info
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NodeInfoResponse'
+  /openchannel:
+    post:
+      tags:
+        - Channels
+      summary: Open a channel
+      description: Open a new LN channel (RGB-enabled when both asset_id and asset_amount are specified).
+        You can optionally provide a 32 bytes temporary channel ID as a hex-encoded string.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/OpenChannelRequest'
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OpenChannelResponse'
+  /postassetmedia:
+    post:
+      tags:
+        - RGB
+      summary: Post an asset media
+      description: Save the provided media
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PostAssetMediaRequest'
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PostAssetMediaResponse'
+  /refreshtransfers:
+    post:
+      tags:
+        - RGB
+      summary: Refresh transfers
+      description: Refresh RGB pending transfers
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RefreshRequest'
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EmptyResponse'
+  /restore:
+    post:
+      tags:
+        - Other
+      summary: Restore the node
+      description: Restore a node from a backup file
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RestoreRequest'
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EmptyResponse'
+  /rgbinvoice:
+    post:
+      tags:
+        - RGB
+      summary: Get an RGB invoice
+      description: Get an RGB invoice to receive assets on-chain
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RgbInvoiceRequest'
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RgbInvoiceResponse'
+  /sendasset:
+    post:
+      tags:
+        - RGB
+      summary: Send assets
+      description: Send RGB assets on-chain
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SendAssetRequest'
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SendAssetResponse'
+  /sendbtc:
+    post:
+      tags:
+        - On-chain
+      summary: Send BTC
+      description: Send bitcoins on-chain
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SendBtcRequest'
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SendBtcResponse'
+  /sendonionmessage:
+    post:
+      tags:
+        - Other
+      summary: Send an onion message
+      description: Send an onion message via the LN
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SendOnionMessageRequest'
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EmptyResponse'
+  /sendpayment:
+    post:
+      tags:
+        - Payments
+      summary: Send a payment
+      description: Pay the provided LN invoice
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SendPaymentRequest'
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SendPaymentResponse'
+  /shutdown:
+    post:
+      tags:
+        - Other
+      summary: Shutdown the node
+      description: Gracefully shutdown the node
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EmptyResponse'
+  /sync:
+    post:
+      tags:
+        - RGB
+      summary: Sync the RGB wallet
+      description: Sync the RGB wallet
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EmptyResponse'
+  /signmessage:
+    post:
+      tags:
+        - Other
+      summary: Sign a message
+      description: Sign the provided message
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SignMessageRequest'
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SignMessageResponse'
+  /taker:
+    post:
+      tags:
+        - Swaps
+      summary: Accept a swap
+      description: Accept a swap on the taker side
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TakerRequest'
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EmptyResponse'
+  /unlock:
+    post:
+      tags:
+        - Other
+      summary: Unlock the node
+      description: Unlock a locked node
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UnlockRequest'
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EmptyResponse'
+components:
+  schemas:
+    AddressResponse:
+      type: object
+      properties:
+        address:
+          type: string
+          example: bcrt1qnc5y6j6dmejrkwy93farhvpezk0lf46gk7aecs
+    AssetBalanceRequest:
+      type: object
+      properties:
+        asset_id:
+          type: string
+          example: rgb:2dkSTbr-jFhznbPmo-TQafzswCN-av4gTsJjX-ttx6CNou5-M98k8Zd
+    AssetBalanceResponse:
+      type: object
+      properties:
+        settled:
+          type: integer
+          example: 777
+        future:
+          type: integer
+          example: 777
+        spendable:
+          type: integer
+          example: 777
+        offchain_outbound:
+          type: integer
+          example: 444
+        offchain_inbound:
+          type: integer
+          example: 0
+    AssetMetadataRequest:
+      type: object
+      properties:
+        asset_id:
+          type: string
+          example: rgb:2dkSTbr-jFhznbPmo-TQafzswCN-av4gTsJjX-ttx6CNou5-M98k8Zd
+    AssetMetadataResponse:
+      type: object
+      properties:
+        asset_iface:
+          $ref: '#/components/schemas/AssetIface'
+        asset_schema:
+          $ref: '#/components/schemas/AssetSchema'
+        issued_supply:
+          type: integer
+          example: 777
+        timestamp:
+          type: integer
+          example: 1691160565
+        name:
+          type: string
+          example: Collectible
+        precision:
+          type: integer
+          example: 0
+        ticker:
+          type: string
+          example: USDT
+        details:
+          type: string
+          example: asset details
+        token:
+          $ref: '#/components/schemas/Token'
+    AssetCFA:
+      type: object
+      properties:
+        asset_id:
+          type: string
+          example: rgb:2dkSTbr-jFhznbPmo-TQafzswCN-av4gTsJjX-ttx6CNou5-M98k8Zd
+        asset_iface:
+          $ref: '#/components/schemas/AssetIface'
+        name:
+          type: string
+          example: Collectible
+        details:
+          type: string
+          example: asset details
+        precision:
+          type: integer
+          example: 0
+        issued_supply:
+          type: integer
+          example: 777
+        timestamp:
+          type: integer
+          example: 1691160565
+        added_at:
+          type: integer
+          example: 1691161979
+        balance:
+          $ref: '#/components/schemas/AssetBalanceResponse'
+        media:
+          $ref: '#/components/schemas/Media'
+    AssetIface:
+      type: string
+      enum:
+        - RGB20
+        - RGB21
+        - RGB25
+    AssetNIA:
+      type: object
+      properties:
+        asset_id:
+          type: string
+          example: rgb:2dkSTbr-jFhznbPmo-TQafzswCN-av4gTsJjX-ttx6CNou5-M98k8Zd
+        asset_iface:
+          $ref: '#/components/schemas/AssetIface'
+        ticker:
+          type: string
+          example: USDT
+        name:
+          type: string
+          example: Tether
+        details:
+          type: string
+          example: asset details
+        precision:
+          type: integer
+          example: 0
+        issued_supply:
+          type: integer
+          example: 777
+        timestamp:
+          type: integer
+          example: 1691160565
+        added_at:
+          type: integer
+          example: 1691161979
+        balance:
+          $ref: '#/components/schemas/AssetBalanceResponse'
+        media:
+          $ref: '#/components/schemas/Media'
+    AssetSchema:
+      type: string
+      enum:
+        - Nia
+        - Uda
+        - Cfa
+    AssetUDA:
+      type: object
+      properties:
+        asset_id:
+          type: string
+          example: rgb:2dkSTbr-jFhznbPmo-TQafzswCN-av4gTsJjX-ttx6CNou5-M98k8Zd
+        asset_iface:
+          $ref: '#/components/schemas/AssetIface'
+        ticker:
+          type: string
+          example: UNI
+        name:
+          type: string
+          example: Unique
+        details:
+          type: string
+          example: asset details
+        precision:
+          type: integer
+          example: 0
+        issued_supply:
+          type: integer
+          example: 777
+        timestamp:
+          type: integer
+          example: 1691160565
+        added_at:
+          type: integer
+          example: 1691161979
+        balance:
+          $ref: '#/components/schemas/AssetBalanceResponse'
+        token:
+          $ref: '#/components/schemas/TokenLight'
+    BackupRequest:
+      type: object
+      properties:
+        backup_path:
+          type: string
+          example: /path/where/to/save/the/backup/file
+        password:
+          type: string
+          example: nodepassword
+    BitcoinNetwork:
+      type: string
+      example: Regtest
+      enum:
+        - Mainnet
+        - Testnet
+        - Signet
+        - Regtest
+    BlockTime:
+      type: object
+      properties:
+        height:
+          type: integer
+          example: 805434
+        timestamp:
+          type: integer
+          example: 1691160659
+    BtcBalance:
+      type: object
+      properties:
+        settled:
+          type: integer
+          example: 777000
+        future:
+          type: integer
+          example: 777000
+        spendable:
+          type: integer
+          example: 777000
+    BtcBalanceRequest:
+      type: object
+      properties:
+        skip_sync:
+          type: boolean
+          example: false
+    BtcBalanceResponse:
+      type: object
+      properties:
+        vanilla:
+          $ref: '#/components/schemas/BtcBalance'
+        colored:
+          $ref: '#/components/schemas/BtcBalance'
+    ChangePasswordRequest:
+      type: object
+      properties:
+        old_password:
+          type: string
+          example: nodepassword
+        new_password:
+          type: string
+          example: nodenewpassword
+    Channel:
+      type: object
+      properties:
+        channel_id:
+          type: string
+          example: 8129afe1b1d7cf60d5e1bf4c04b09bec925ed4df5417ceee0484e24f816a105a
+        funding_txid:
+          type: string
+          example: 5a106a814fe28404eece1754dfd45e92ec9bb0044cbfe1d560cfd7b1e1af2981
+        peer_pubkey:
+          type: string
+          example: 03b79a4bc1ec365524b4fab9a39eb133753646babb5a1da5c4bc94c53110b7795d
+        peer_alias:
+          type: string
+          example: null
+        short_channel_id:
+          type: integer
+          example: 120946279120896
+        status:
+          $ref: '#/components/schemas/ChannelStatus'
+        ready:
+          type: boolean
+          example: false
+        capacity_sat:
+          type: integer
+          example: 30010
+        local_balance_sat:
+          type: integer
+          example: 28616
+        outbound_balance_msat:
+          type: integer
+          example: 21616000
+        inbound_balance_msat:
+          type: integer
+          example: 6394000
+        next_outbound_htlc_limit_msat:
+          type: integer
+          example: 3001000
+        next_outbound_htlc_minimum_msat:
+          type: integer
+          example: 1
+        is_usable:
+          type: boolean
+          example: false
+        public:
+          type: boolean
+          example: true
+        asset_id:
+          type: string
+          example: rgb:2dkSTbr-jFhznbPmo-TQafzswCN-av4gTsJjX-ttx6CNou5-M98k8Zd
+        asset_local_amount:
+          type: integer
+          example: 777
+        asset_remote_amount:
+          type: integer
+          example: 0
+    ChannelStatus:
+      type: string
+      enum:
+        - Opening
+        - Opened
+        - Closing
+    CheckIndexerUrlRequest:
+      type: object
+      properties:
+        indexer_url:
+          type: string
+          example: 127.0.0.1:50001
+    CheckIndexerUrlResponse:
+      type: object
+      properties:
+        indexer_protocol:
+          $ref: '#/components/schemas/IndexerProtocol'
+    CheckProxyEndpointRequest:
+      type: object
+      properties:
+        proxy_url:
+          type: string
+          example: rpc://127.0.0.1:3000/json-rpc
+    CloseChannelRequest:
+      type: object
+      properties:
+        channel_id:
+          type: string
+          example: 8129afe1b1d7cf60d5e1bf4c04b09bec925ed4df5417ceee0484e24f816a105a
+        peer_pubkey:
+          type: string
+          example: 03b79a4bc1ec365524b4fab9a39eb133753646babb5a1da5c4bc94c53110b7795d
+        force:
+          type: boolean
+          example: false
+    ConnectPeerRequest:
+      type: object
+      properties:
+        peer_pubkey_and_addr:
+          type: string
+          example: 03b79a4bc1ec365524b4fab9a39eb133753646babb5a1da5c4bc94c53110b7795d@localhost:9736
+    CreateUtxosRequest:
+      type: object
+      properties:
+        up_to:
+          type: boolean
+          example: false
+        num:
+          type: integer
+          example: 4
+        size:
+          type: integer
+          example: 32500
+        fee_rate:
+          type: number
+          example: 5
+        skip_sync:
+          type: boolean
+          example: false
+    DecodeLNInvoiceRequest:
+      type: object
+      properties:
+        invoice:
+          type: string
+          example: lnbcrt30u1pjv6yzndqud3jxktt5w46x7unfv9kz6mn0v3jsnp4qdpc280eur52luxppv6f3nnj8l6vnd9g2hnv3qv6mjhmhvlzf6327pp5tjjasx6g9dqptea3fhm6yllq5wxzycnnvp8l6wcq3d6j2uvpryuqsp5l8az8x3g8fe05dg7cmgddld3da09nfjvky8xftwsk4cj8p2l7kfq9qyysgqcqpcxqzdylzlwfnkyw3jv344x4rzwgkk53ng0fhxy5rdduk4g5tpvea8xa6rfckkza35va28xjn2tqkhgarcxep5umm4x5k56wfcdvu95eq7qzp20vrl4xz76syapsa3c09j7lg5gerkaj63llj0ark7ph8hfketn6fkqzm8laf66dhsncm23wkwm5l5377we9e8lnlknnkwje5eefkccusqm6rqt8
+    DecodeLNInvoiceResponse:
+      type: object
+      properties:
+        amt_msat:
+          type: integer
+          example: 3000000
+        expiry_sec:
+          type: integer
+          example: 420
+        timestamp:
+          type: integer
+          example: 1691160659
+        asset_id:
+          type: string
+          example: rgb:2dkSTbr-jFhznbPmo-TQafzswCN-av4gTsJjX-ttx6CNou5-M98k8Zd
+        asset_amount:
+          type: integer
+          example: 42
+        payment_hash:
+          type: string
+          example: 5ca5d81b482b4015e7b14df7a27fe0a38c226273604ffd3b008b752571811938
+        payment_secret:
+          type: string
+          example: f9fa239a283a72fa351ec6d0d6fdb16f5e59a64cb10e64add0b57123855ff592
+        payee_pubkey:
+          type: string
+          example: 0343851df9e0e8aff0c10b3498ce723ff4c9b4a855e6c8819adcafbbb3e24ea2af
+        network:
+          $ref: '#/components/schemas/BitcoinNetwork'
+    DecodeRGBInvoiceRequest:
+      type: object
+      properties:
+        invoice:
+          type: string
+          example: rgb:2eVw8uw-8G88LQ2tQ-kexM12SoD-nCX8DmQrw-yLMu6JDfK-xx1SCfc/RGB20/69+utxob:2PoDFyk-8aegNHZE4-inHHn4nWz-rNtAX3MWv-sTiVPQYrF-ed2bXM?expiry=1698325849&endpoints=rpcs://proxy.iriswallet.com/0.2/json-rpc
+    DecodeRGBInvoiceResponse:
+      type: object
+      properties:
+        recipient_id:
+          type: string
+          example: utxob:2PoDFyk-8aegNHZE4-inHHn4nWz-rNtAX3MWv-sTiVPQYrF-ed2bXM
+        asset_iface:
+          $ref: '#/components/schemas/AssetIface'
+        asset_id:
+          type: string
+          example: rgb:2eVw8uw-8G88LQ2tQ-kexM12SoD-nCX8DmQrw-yLMu6JDfK-xx1SCfc
+        amount:
+          type: integer
+          example: 69
+        network:
+          $ref: '#/components/schemas/BitcoinNetwork'
+        expiration_timestamp:
+          type: integer
+          example: 1698325849
+        transport_endpoints:
+          type: array
+          items:
+            type: string
+            example: rpcs://proxy.iriswallet.com/0.2/json-rpc
+    DisconnectPeerRequest:
+      type: object
+      properties:
+        peer_pubkey:
+          type: string
+          example: 03b79a4bc1ec365524b4fab9a39eb133753646babb5a1da5c4bc94c53110b7795d
+    EmbeddedMedia:
+      type: object
+      properties:
+        mime:
+          type: string
+          example: text/plain
+        data:
+          type: array
+          items:
+            type: integer
+          example: [82, 76, 78]
+    EmptyResponse:
+      type: object
+    EstimateFeeRequest:
+      type: object
+      properties:
+        blocks:
+          type: integer
+          example: 7
+    EstimateFeeResponse:
+      type: object
+      properties:
+        fee_rate:
+          type: number
+          example: 9.3
+    FailTransfersRequest:
+      type: object
+      properties:
+        batch_transfer_idx:
+          type: integer
+          example: null
+        no_asset_only:
+          type: boolean
+          example: false
+        skip_sync:
+          type: boolean
+          example: false
+    FailTransfersResponse:
+      type: object
+      properties:
+        transfers_changed:
+          type: boolean
+          example: true
+    GetAssetMediaRequest:
+      type: object
+      properties:
+        digest:
+          type: string
+          example: 5891b5b522d5df086d0ff0b110fbd9d21bb4fc7163af34d08286a2e846f6be03
+    GetAssetMediaResponse:
+      type: object
+      properties:
+        bytes_hex:
+          type: string
+          example: 68656c6c6f0a
+    GetChannelIdRequest:
+      type: object
+      properties:
+        temporary_channel_id:
+          type: string
+          example: a8b60c8ce3067b5fc881d4831323e24751daec3b64353c8df3205ec5d838f1c5
+    GetChannelIdResponse:
+      type: object
+      properties:
+        channel_id:
+          type: string
+          example: 8129afe1b1d7cf60d5e1bf4c04b09bec925ed4df5417ceee0484e24f816a105a
+    GetPaymentRequest:
+      type: object
+      properties:
+        payment_hash:
+          type: string
+          example: 5ca5d81b482b4015e7b14df7a27fe0a38c226273604ffd3b008b752571811938
+    GetPaymentResponse:
+      type: object
+      properties:
+        payment:
+          $ref: '#/components/schemas/Payment'
+    GetSwapRequest:
+      type: object
+      properties:
+        payment_hash:
+          type: string
+          example: 5ca5d81b482b4015e7b14df7a27fe0a38c226273604ffd3b008b752571811938
+        taker:
+          type: boolean
+          example: false
+    GetSwapResponse:
+      type: object
+      properties:
+        swap:
+          $ref: '#/components/schemas/Swap'
+    HTLCStatus:
+      type: string
+      enum:
+        - Pending
+        - Succeeded
+        - Failed
+    IndexerProtocol:
+      type: string
+      enum:
+        - Electrum
+        - Esplora
+    InitRequest:
+      type: object
+      properties:
+        password:
+          type: string
+          example: nodepassword
+    InitResponse:
+      type: object
+      properties:
+        mnemonic:
+          type: string
+          example: skill lamp please gown put season degree collect decline account monitor insane
+    InvoiceStatus:
+      type: string
+      enum:
+        - Pending
+        - Succeeded
+        - Failed
+        - Expired
+    InvoiceStatusRequest:
+      type: object
+      properties:
+        invoice:
+          type: string
+          example: lnbcrt30u1pjv6yzndqud3jxktt5w46x7unfv9kz6mn0v3jsnp4qdpc280eur52luxppv6f3nnj8l6vnd9g2hnv3qv6mjhmhvlzf6327pp5tjjasx6g9dqptea3fhm6yllq5wxzycnnvp8l6wcq3d6j2uvpryuqsp5l8az8x3g8fe05dg7cmgddld3da09nfjvky8xftwsk4cj8p2l7kfq9qyysgqcqpcxqzdylzlwfnkyw3jv344x4rzwgkk53ng0fhxy5rdduk4g5tpvea8xa6rfckkza35va28xjn2tqkhgarcxep5umm4x5k56wfcdvu95eq7qzp20vrl4xz76syapsa3c09j7lg5gerkaj63llj0ark7ph8hfketn6fkqzm8laf66dhsncm23wkwm5l5377we9e8lnlknnkwje5eefkccusqm6rqt8
+    InvoiceStatusResponse:
+      type: object
+      properties:
+        status:
+          $ref: '#/components/schemas/InvoiceStatus'
+    IssueAssetCFARequest:
+      type: object
+      properties:
+        amounts:
+          type: array
+          items:
+            type: integer
+          example: [ 1000, 600 ]
+        name:
+          type: string
+          example: Tether
+        details:
+          type: string
+          example: asset details
+        precision:
+          type: integer
+          example: 0
+        file_digest:
+          type: string
+          example: 5891b5b522d5df086d0ff0b110fbd9d21bb4fc7163af34d08286a2e846f6be03
+    IssueAssetCFAResponse:
+      type: object
+      properties:
+        asset:
+          $ref: '#/components/schemas/AssetCFA'
+    IssueAssetNIARequest:
+      type: object
+      properties:
+        amounts:
+          type: array
+          items:
+            type: integer
+          example: [ 1000, 600 ]
+        ticker:
+          type: string
+          example: USDT
+        name:
+          type: string
+          example: Tether
+        precision:
+          type: integer
+          example: 0
+    IssueAssetNIAResponse:
+      type: object
+      properties:
+        asset:
+          $ref: '#/components/schemas/AssetNIA'
+    IssueAssetUDARequest:
+      type: object
+      properties:
+        ticker:
+          type: string
+          example: UNI
+        name:
+          type: string
+          example: Unique
+        details:
+          type: string
+          example: asset details
+        precision:
+          type: integer
+          example: 0
+        media_file_digest:
+          type: string
+          example: /path/to/media
+        attachments_file_digests:
+          type: array
+          items:
+            type: string
+          example: [ 5891b5b522d5df086d0ff0b110fbd9d21bb4fc7163af34d08286a2e846f6be03, d7516e3a27cdf35aa9dcb323b5f556344ef7f57570be30b88de2bfd4ba339b1a ]
+    IssueAssetUDAResponse:
+      type: object
+      properties:
+        asset:
+          $ref: '#/components/schemas/AssetUDA'
+    KeysendRequest:
+      type: object
+      properties:
+        dest_pubkey:
+          type: string
+          example: 03b79a4bc1ec365524b4fab9a39eb133753646babb5a1da5c4bc94c53110b7795d
+        amt_msat:
+          type: integer
+          example: 3000000
+        asset_id:
+          type: string
+          example: rgb:2dkSTbr-jFhznbPmo-TQafzswCN-av4gTsJjX-ttx6CNou5-M98k8Zd
+        asset_amount:
+          type: integer
+          example: 42
+    KeysendResponse:
+      type: object
+      properties:
+        payment_hash:
+          type: string
+          example: 8ffd4c0642047bc51ea01a22e6b2ede0fc001aee0e9929b2e84e41cf6589d61e
+        payment_preimage:
+          type: string
+          example: 89d28bd306aa9bb906fd0ac31092d04c37c919a171b343083167e2a3cdc60578
+        status:
+          $ref: '#/components/schemas/HTLCStatus'
+    ListAssetsRequest:
+      type: object
+      properties:
+        filter_asset_schemas:
+          type: array
+          items:
+            $ref: '#/components/schemas/AssetSchema'
+          example: [ Nia, Uda, Cfa ]
+    ListAssetsResponse:
+      type: object
+      properties:
+        nia:
+          type: array
+          items:
+            $ref: '#/components/schemas/AssetNIA'
+        uda:
+          type: array
+          items:
+            $ref: '#/components/schemas/AssetUDA'
+        cfa:
+          type: array
+          items:
+            $ref: '#/components/schemas/AssetCFA'
+    ListChannelsResponse:
+      type: object
+      properties:
+        channels:
+          type: array
+          items:
+            $ref: '#/components/schemas/Channel'
+    ListPaymentsResponse:
+      type: object
+      properties:
+        payments:
+          type: array
+          items:
+            $ref: '#/components/schemas/Payment'
+    ListPeersResponse:
+      type: object
+      properties:
+        peers:
+          type: array
+          items:
+            $ref: '#/components/schemas/Peer'
+    ListSwapsResponse:
+      type: object
+      properties:
+        maker:
+          type: array
+          items:
+            $ref: '#/components/schemas/Swap'
+        taker:
+          type: array
+          items:
+            $ref: '#/components/schemas/Swap'
+    ListTransactionsRequest:
+      type: object
+      properties:
+        skip_sync:
+          type: boolean
+          example: false
+    ListTransactionsResponse:
+      type: object
+      properties:
+        transactions:
+          type: array
+          items:
+            $ref: '#/components/schemas/Transaction'
+    ListTransfersRequest:
+      type: object
+      properties:
+        asset_id:
+          type: string
+          example: rgb:2dkSTbr-jFhznbPmo-TQafzswCN-av4gTsJjX-ttx6CNou5-M98k8Zd
+    ListTransfersResponse:
+      type: object
+      properties:
+        transfers:
+          type: array
+          items:
+            $ref: '#/components/schemas/Transfer'
+    ListUnspentsRequest:
+      type: object
+      properties:
+        skip_sync:
+          type: boolean
+          example: false
+    ListUnspentsResponse:
+      type: object
+      properties:
+        unspents:
+          type: array
+          items:
+            $ref: '#/components/schemas/Unspent'
+    LNInvoiceRequest:
+      type: object
+      properties:
+        amt_msat:
+          type: integer
+          example: 3000000
+        expiry_sec:
+          type: integer
+          example: 420
+        asset_id:
+          type: string
+          example: rgb:2dkSTbr-jFhznbPmo-TQafzswCN-av4gTsJjX-ttx6CNou5-M98k8Zd
+        asset_amount:
+          type: integer
+          example: 42
+    LNInvoiceResponse:
+      type: object
+      properties:
+        invoice:
+          type: string
+          example: lnbcrt30u1pjv6yzndqud3jxktt5w46x7unfv9kz6mn0v3jsnp4qdpc280eur52luxppv6f3nnj8l6vnd9g2hnv3qv6mjhmhvlzf6327pp5tjjasx6g9dqptea3fhm6yllq5wxzycnnvp8l6wcq3d6j2uvpryuqsp5l8az8x3g8fe05dg7cmgddld3da09nfjvky8xftwsk4cj8p2l7kfq9qyysgqcqpcxqzdylzlwfnkyw3jv344x4rzwgkk53ng0fhxy5rdduk4g5tpvea8xa6rfckkza35va28xjn2tqkhgarcxep5umm4x5k56wfcdvu95eq7qzp20vrl4xz76syapsa3c09j7lg5gerkaj63llj0ark7ph8hfketn6fkqzm8laf66dhsncm23wkwm5l5377we9e8lnlknnkwje5eefkccusqm6rqt8
+    MakerExecuteRequest:
+      type: object
+      properties:
+        swapstring:
+            type: string
+            example: 30/rgb:2dkSTbr-jFhznbPmo-TQafzswCN-av4gTsJjX-ttx6CNou5-M98k8Zd/10/rgb:2eVw8uw-8G88LQ2tQ-kexM12SoD-nCX8DmQrw-yLMu6JDfK-xx1SCfc/1715896416/9d342c6ba006e24abee84a2e034a22d5e30c1f2599fb9c3574d46d3cde3d65a2
+        payment_secret:
+            type: string
+            example: 777a7756c620868199ed5fdc35bee4095b5709d543e5c2bf0494396bf27d2ea2
+        taker_pubkey:
+          type: string
+          example: 02270dadcd6e7ba0ef707dac72acccae1a3607453a8dd2aef36ff3be4e0d31f043
+    MakerInitRequest:
+      type: object
+      properties:
+        qty_from:
+          type: integer
+          example: 30
+        qty_to:
+          type: integer
+          example: 10
+        from_asset:
+          type: string
+          example: rgb:2dkSTbr-jFhznbPmo-TQafzswCN-av4gTsJjX-ttx6CNou5-M98k8Zd
+        to_asset:
+          type: string
+          example: rgb:2eVw8uw-8G88LQ2tQ-kexM12SoD-nCX8DmQrw-yLMu6JDfK-xx1SCfc
+        timeout_sec:
+          type: integer
+          example: 100
+    MakerInitResponse:
+      type: object
+      properties:
+        payment_hash:
+            type: string
+            example: 3febfae1e68b190c15461f4c2a3290f9af1dae63fd7d620d2bd61601869026cd
+        payment_secret:
+            type: string
+            example: 777a7756c620868199ed5fdc35bee4095b5709d543e5c2bf0494396bf27d2ea2
+        swapstring:
+            type: string
+            example: 30/rgb:2dkSTbr-jFhznbPmo-TQafzswCN-av4gTsJjX-ttx6CNou5-M98k8Zd/10/rgb:2eVw8uw-8G88LQ2tQ-kexM12SoD-nCX8DmQrw-yLMu6JDfK-xx1SCfc/1715896416/9d342c6ba006e24abee84a2e034a22d5e30c1f2599fb9c3574d46d3cde3d65a2
+    Media:
+      type: object
+      properties:
+        file_path:
+          type: string
+          example: /path/to/media
+        mime:
+          type: string
+          example: text/plain
+    NetworkInfoResponse:
+      type: object
+      properties:
+        network:
+          $ref: '#/components/schemas/BitcoinNetwork'
+        height:
+          type: integer
+          example: 805434
+    NodeInfoResponse:
+      type: object
+      properties:
+        pubkey:
+          type: string
+          example: 02270dadcd6e7ba0ef707dac72acccae1a3607453a8dd2aef36ff3be4e0d31f043
+        num_channels:
+          type: integer
+          example: 1
+        num_usable_channels:
+          type: integer
+          example: 0
+        local_balance_sat:
+          type: integer
+          example: 28616
+        eventual_close_fees_sat:
+          type: integer
+          example: 892
+        pending_outbound_payments_sat:
+          type: integer
+          example: 7852
+        num_peers:
+          type: integer
+          example: 1
+        onchain_pubkey:
+          type: string
+          example: tpubDDqiQYzNMGsKVVmWYG4FCPPcbd5S4uW9u7a6zUFkgbh16VmFTvsaNyo37mAgkCku6jStBcU8VaLxG2SE7ab2sEwwagjfbS8U9H82BadjKR1
+        max_media_upload_size_mb:
+          type: integer
+          example: 5
+        rgb_htlc_min_msat:
+          type: integer
+          example: 3000000
+        rgb_channel_capacity_min_sat:
+          type: integer
+          example: 30010
+        channel_capacity_min_sat:
+          type: integer
+          example: 5506
+        channel_capacity_max_sat:
+          type: integer
+          example: 16777215
+        channel_asset_min_amount:
+          type: integer
+          example: 1
+        channel_asset_max_amount:
+          type: integer
+          example: 18446744073709551615
+        network_nodes:
+          type: integer
+          example: 987226
+        network_channels:
+          type: integer
+          example: 7812821
+    OpenChannelRequest:
+      type: object
+      properties:
+        peer_pubkey_and_opt_addr:
+          type: string
+          example: 03b79a4bc1ec365524b4fab9a39eb133753646babb5a1da5c4bc94c53110b7795d@localhost:9736
+        capacity_sat:
+          type: integer
+          example: 30010
+        push_msat:
+          type: integer
+          example: 1394000
+        asset_amount:
+          type: integer
+          example: 333
+        asset_id:
+          type: string
+          example: rgb:2dkSTbr-jFhznbPmo-TQafzswCN-av4gTsJjX-ttx6CNou5-M98k8Zd
+        public:
+          type: boolean
+          example: true
+        with_anchors:
+          type: boolean
+          example: true
+        fee_base_msat:
+          type: integer
+          example: 1000
+        fee_proportional_millionths:
+          type: integer
+          example: 0
+        temporary_channel_id:
+          type: string
+          example: a8b60c8ce3067b5fc881d4831323e24751daec3b64353c8df3205ec5d838f1c5
+    OpenChannelResponse:
+      type: object
+      properties:
+        temporary_channel_id:
+          type: string
+          example: a8b60c8ce3067b5fc881d4831323e24751daec3b64353c8df3205ec5d838f1c5
+    Payment:
+      type: object
+      properties:
+        amt_msat:
+          type: integer
+          example: 3000000
+        asset_amount:
+          type: integer
+          example: 42
+        asset_id:
+          type: string
+          example: rgb:2dkSTbr-jFhznbPmo-TQafzswCN-av4gTsJjX-ttx6CNou5-M98k8Zd
+        payment_hash:
+          type: string
+          example: 3febfae1e68b190c15461f4c2a3290f9af1dae63fd7d620d2bd61601869026cd
+        inbound:
+          type: boolean
+          example: true
+        status:
+          $ref: '#/components/schemas/HTLCStatus'
+        created_at:
+          type: integer
+          example: 1691160765
+        updated_at:
+          type: integer
+          example: 1691162674
+        payee_pubkey:
+          type: string
+          example: 03b79a4bc1ec365524b4fab9a39eb133753646babb5a1da5c4bc94c53110b7795d
+    Peer:
+      type: object
+      properties:
+        pubkey:
+          type: string
+          example: 03b79a4bc1ec365524b4fab9a39eb133753646babb5a1da5c4bc94c53110b7795d
+    PostAssetMediaRequest:
+      type: object
+      properties:
+        file:
+          type: string
+          format: binary
+    PostAssetMediaResponse:
+      type: object
+      properties:
+        digest:
+          type: string
+          example: 5891b5b522d5df086d0ff0b110fbd9d21bb4fc7163af34d08286a2e846f6be03
+    ProofOfReserves:
+      type: object
+      properties:
+        utxo:
+          type: string
+          example: efed66f5309396ff43c8a09941c8103d9d5bbffd473ad9f13013ac89fb6b4671:0
+        proof:
+          type: array
+          items:
+            type: integer
+          example: [6, 36, 87, 13, 5, 17]
+    RefreshRequest:
+      type: object
+      properties:
+        skip_sync:
+          type: boolean
+          example: false
+    RestoreRequest:
+      type: object
+      properties:
+        backup_path:
+          type: string
+          example: /path/to/the/backup/file
+        password:
+          type: string
+          example: nodepassword
+    RgbAllocation:
+      type: object
+      properties:
+        asset_id:
+          type: string
+          example: rgb:2dkSTbr-jFhznbPmo-TQafzswCN-av4gTsJjX-ttx6CNou5-M98k8Zd
+        amount:
+          type: integer
+          example: 42
+        settled:
+          type: boolean
+          example: false
+    RgbInvoiceRequest:
+      type: object
+      properties:
+        min_confirmations:
+          type: integer
+          example: 1
+        asset_id:
+          type: string
+          example: rgb:2dkSTbr-jFhznbPmo-TQafzswCN-av4gTsJjX-ttx6CNou5-M98k8Zd
+        duration_seconds:
+          type: integer
+          example: 86400
+    RgbInvoiceResponse:
+      type: object
+      properties:
+        recipient_id:
+          type: string
+          example: utxob:2FZsSuk-iyVQLVuU4-Gc6J4qkE8-mLS17N4jd-MEx6cWz9F-MFkyE1n
+        invoice:
+          type: string
+          example: rgb:~/~/utxob:2FZsSuk-iyVQLVuU4-Gc6J4qkE8-mLS17N4jd-MEx6cWz9F-MFkyE1n?expiry=1695811760&endpoints=rpc://127.0.0.1:3000/json-rpc
+        expiration_timestamp:
+          type: integer
+          example: 1695811760
+        batch_transfer_idx:
+          type: integer
+          example: 1
+    SendAssetRequest:
+      type: object
+      properties:
+        asset_id:
+          type: string
+          example: rgb:2dkSTbr-jFhznbPmo-TQafzswCN-av4gTsJjX-ttx6CNou5-M98k8Zd
+        amount:
+          type: integer
+          example: 42
+        recipient_id:
+          type: string
+          example: bcrt:utxob:2FZsSuk-iyVQLVuU4-Gc6J4qkE8-mLS17N4jd-MEx6cWz9F-MFkyE1n
+        donation:
+          type: boolean
+          example: false
+        fee_rate:
+          type: number
+          example: 5
+        min_confirmations:
+          type: integer
+          example: 1
+        transport_endpoints:
+          type: array
+          items:
+            type: string
+            example: rpc://127.0.0.1:3000/json-rpc
+        skip_sync:
+          type: boolean
+          example: false
+    SendAssetResponse:
+      type: object
+      properties:
+        txid:
+          type: string
+          example: 7c2c95b9c2aa0a7d140495b664de7973b76561de833f0dd84def3efa08941664
+    SendBtcRequest:
+      type: object
+      properties:
+        amount:
+          type: integer
+          example: 16900
+        address:
+          type: string
+          example: bcrt1qwxht5tut39dws8tjcf649tp908r8fr2j75c94k
+        fee_rate:
+          type: number
+          example: 5
+        skip_sync:
+          type: boolean
+          example: false
+    SendBtcResponse:
+      type: object
+      properties:
+        txid:
+          type: string
+          example: 7c2c95b9c2aa0a7d140495b664de7973b76561de833f0dd84def3efa08941664
+    SendOnionMessageRequest:
+      type: object
+      properties:
+        node_ids:
+          type: array
+          items:
+            type: string
+            example: 03b79a4bc1ec365524b4fab9a39eb133753646babb5a1da5c4bc94c53110b7795d
+        tlv_type:
+          type: integer
+          example: 77
+        data:
+          type: string
+          example: message to send
+    SendPaymentRequest:
+      type: object
+      properties:
+        invoice:
+          type: string
+          example: lnbcrt30u1pjv6yzndqud3jxktt5w46x7unfv9kz6mn0v3jsnp4qdpc280eur52luxppv6f3nnj8l6vnd9g2hnv3qv6mjhmhvlzf6327pp5tjjasx6g9dqptea3fhm6yllq5wxzycnnvp8l6wcq3d6j2uvpryuqsp5l8az8x3g8fe05dg7cmgddld3da09nfjvky8xftwsk4cj8p2l7kfq9qyysgqcqpcxqzdylzlwfnkyw3jv344x4rzwgkk53ng0fhxy5rdduk4g5tpvea8xa6rfckkza35va28xjn2tqkhgarcxep5umm4x5k56wfcdvu95eq7qzp20vrl4xz76syapsa3c09j7lg5gerkaj63llj0ark7ph8hfketn6fkqzm8laf66dhsncm23wkwm5l5377we9e8lnlknnkwje5eefkccusqm6rqt8
+    SendPaymentResponse:
+      type: object
+      properties:
+        payment_hash:
+          type: string
+          example: 3febfae1e68b190c15461f4c2a3290f9af1dae63fd7d620d2bd61601869026cd
+        payment_secret:
+          type: string
+          example: 777a7756c620868199ed5fdc35bee4095b5709d543e5c2bf0494396bf27d2ea2
+        status:
+          $ref: '#/components/schemas/HTLCStatus'
+    SignMessageRequest:
+      type: object
+      properties:
+        message:
+          type: string
+          example: message to sign
+    SignMessageResponse:
+      type: object
+      properties:
+        signed_message:
+          type: string
+          example: signed message
+    Swap:
+      type: object
+      properties:
+        qty_from:
+          type: integer
+          example: 30
+        qty_to:
+          type: integer
+          example: 10
+        from_asset:
+          type: string
+          example: rgb:2dkSTbr-jFhznbPmo-TQafzswCN-av4gTsJjX-ttx6CNou5-M98k8Zd
+        to_asset:
+          type: string
+          example: rgb:2eVw8uw-8G88LQ2tQ-kexM12SoD-nCX8DmQrw-yLMu6JDfK-xx1SCfc
+        payment_hash:
+          type: string
+          example: 7c2c95b9c2aa0a7d140495b664de7973b76561de833f0dd84def3efa08941664
+        status:
+          $ref: '#/components/schemas/SwapStatus'
+        requested_at:
+          type: integer
+          example: 1691160765
+        initiated_at:
+          type: integer
+          example: 1691168512
+        expires_at:
+          type: integer
+          example: 1691172703
+        completed_at:
+          type: integer
+          example: 1691171075
+    SwapStatus:
+      type: string
+      enum:
+        - Waiting
+        - Pending
+        - Succeeded
+        - Expired
+        - Failed
+    TakerRequest:
+      type: object
+      properties:
+        swapstring:
+            type: string
+            example: 30/rgb:2dkSTbr-jFhznbPmo-TQafzswCN-av4gTsJjX-ttx6CNou5-M98k8Zd/10/rgb:2eVw8uw-8G88LQ2tQ-kexM12SoD-nCX8DmQrw-yLMu6JDfK-xx1SCfc/1715896416/9d342c6ba006e24abee84a2e034a22d5e30c1f2599fb9c3574d46d3cde3d65a2
+    Token:
+      type: object
+      properties:
+        index:
+          type: integer
+          example: 0
+        ticker:
+          type: string
+          example: TKN
+        name:
+          type: string
+          example: Token
+        details:
+          type: string
+          example: token details
+        embedded_media:
+          $ref: '#/components/schemas/EmbeddedMedia'
+        media:
+          $ref: '#/components/schemas/Media'
+        attachments:
+          type: object
+          additionalProperties:
+            $ref: '#/components/schemas/Media'
+          example:
+            0: { file_path: path/to/attachment0, digest: 5891b5b522d5df086d0ff0b110fbd9d21bb4fc7163af34d08286a2e846f6be03, mime: text/plain }
+            1: { file_path: path/to/attachment1, digest: d7516e3a27cdf35aa9dcb323b5f556344ef7f57570be30b88de2bfd4ba339b1a, mime: image/png }
+        reserves:
+          $ref: '#/components/schemas/ProofOfReserves'
+    TokenLight:
+      type: object
+      properties:
+        index:
+          type: integer
+          example: 0
+        ticker:
+          type: string
+          example: TKN
+        name:
+          type: string
+          example: Token
+        details:
+          type: string
+          example: token details
+        embedded_media:
+          type: boolean
+          example: true
+        media:
+          $ref: '#/components/schemas/Media'
+        attachments:
+          type: object
+          additionalProperties:
+            $ref: '#/components/schemas/Media'
+          example:
+            0: { file_path: path/to/attachment0, digest: 5891b5b522d5df086d0ff0b110fbd9d21bb4fc7163af34d08286a2e846f6be03, mime: text/plain }
+            1: { file_path: path/to/attachment1, digest: d7516e3a27cdf35aa9dcb323b5f556344ef7f57570be30b88de2bfd4ba339b1a, mime: image/png }
+        reserves:
+          type: boolean
+          example: false
+    Transaction:
+      type: object
+      properties:
+        transaction_type:
+          $ref: '#/components/schemas/TransactionType'
+        txid:
+          type: string
+          example: 7c2c95b9c2aa0a7d140495b664de7973b76561de833f0dd84def3efa08941664
+        received:
+          type: integer
+          example: 650
+        sent:
+          type: integer
+          example: 1050
+        fee:
+          type: integer
+          example: 100
+        confirmation_time:
+          $ref: '#/components/schemas/BlockTime'
+    TransactionType:
+      type: string
+      enum:
+        - RgbSend
+        - Drain
+        - CreateUtxos
+        - User
+    Transfer:
+      type: object
+      properties:
+        idx:
+          type: integer
+          example: 1
+        created_at:
+          type: integer
+          example: 1691160765
+        updated_at:
+          type: integer
+          example: 1691162674
+        status:
+          $ref: '#/components/schemas/TransferStatus'
+        amount:
+          type: integer
+          example: 77
+        kind:
+          $ref: '#/components/schemas/TransferKind'
+        txid:
+          type: string
+          example: 7c2c95b9c2aa0a7d140495b664de7973b76561de833f0dd84def3efa08941664
+        recipient_id:
+          type: string
+          example: 61qsVbWtkNmU54F2i6qtB9uSmEGsPoaeypCi5uC5uctZ
+        receive_utxo:
+          type: string
+          example: efed66f5309396ff43c8a09941c8103d9d5bbffd473ad9f13013ac89fb6b4671:0
+        change_utxo:
+          type: string
+          example: null
+        expiration:
+          type: integer
+          example: 1691171612
+        transport_endpoints:
+          type: array
+          items:
+            $ref: '#/components/schemas/TransferTransportEndpoint'
+    TransferKind:
+      type: string
+      example: ReceiveBlind
+      enum:
+        - Issuance
+        - ReceiveBlind
+        - ReceiveWitness
+        - Send
+    TransferStatus:
+      type: string
+      enum:
+        - WaitingCounterparty
+        - WaitingConfirmations
+        - Settled
+        - Failed
+    TransferTransportEndpoint:
+      type: object
+      properties:
+        endpoint:
+          type: string
+          example: http://127.0.0.1:3000/json-rpc
+        transport_type:
+          $ref: '#/components/schemas/TransportType'
+        used:
+          type: boolean
+          example: false
+    TransportType:
+      type: string
+      enum:
+        - JsonRpc
+    UnlockRequest:
+      type: object
+      properties:
+        password:
+          type: string
+          example: nodepassword
+        bitcoind_rpc_username:
+          type: string
+          example: user
+        bitcoind_rpc_password:
+          type: string
+          example: password
+        bitcoind_rpc_host:
+          type: string
+          example: localhost
+        bitcoind_rpc_port:
+          type: integer
+          example: 18443
+        indexer_url:
+          type: string
+          example: 127.0.0.1:50001
+        proxy_endpoint:
+          type: string
+          example: rpc://127.0.0.1:3000/json-rpc
+        announce_addresses:
+          type: array
+          items:
+            type: string
+            example: pub.addr.example.com:9735
+        announce_alias:
+          type: string
+          example: nodeAlias
+    Unspent:
+      type: object
+      properties:
+        utxo:
+          $ref: '#/components/schemas/Utxo'
+        rgb_allocations:
+          type: array
+          items:
+            $ref: '#/components/schemas/RgbAllocation'
+    Utxo:
+      type: object
+      properties:
+        outpoint:
+          type: string
+          example: efed66f5309396ff43c8a09941c8103d9d5bbffd473ad9f13013ac89fb6b4671:0
+        btc_amount:
+          type: integer
+          example: 1000
+        colorable:
+          type: boolean
+          example: true

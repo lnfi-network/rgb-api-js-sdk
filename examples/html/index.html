@@ -1,0 +1,43 @@
+<!-- examples/html/getAddress.html -->
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RGB SDK HTML Demo - Get Address</title>
+    <script src="../../dist/rgb-api-sdk.umd.js"></script>
+</head>
+
+<body>
+    <h1>RGB SDK HTML Demo - Get Address</h1>
+
+    <p>Open the browser console to see the output.</p>
+
+    <script>
+        // Assume RgbApiClient is available globally
+
+        async function demoGetAddress() {
+            console.log('HTML Demo: Calling getAddress API');
+
+            // Instantiate client with base URL
+            const client = new RgbApiClient({ baseUrl: 'http://localhost:3001' });
+
+            try {
+                // Call the getAddress API
+                const addressResponse = await client.onchain.getAddress();
+
+                console.log('getAddress Response:', addressResponse);
+                // Example output:
+                // { address: '...' }
+            } catch (error) {
+                console.error('Error calling getAddress:', error);
+            }
+        }
+
+        demoGetAddress();
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,64 @@
+name: Build and Publish to NPM
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build-and-publish:
+    runs-on: ubuntu-latest
+    environment: prod-deploy
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          registry-url: https://registry.npmjs.org
+          cache: "yarn"
+
+      - name: Install deps
+        run: yarn install
+
+      - name: Build
+        run: npm run build
+
+      - name: Generate build hash
+        id: build-hash
+        run: |
+          BUILD_HASH=$(find dist -type f -exec sha256sum {} \; | sha256sum | cut -d' ' -f1)
+          echo "build_hash=$BUILD_HASH" >> $GITHUB_OUTPUT
+          echo "Build hash: $BUILD_HASH"
+
+
+          PACKAGE_VERSION=$(node -p "require('./package.json').version")
+          BUILD_TIME=$(date -u +%Y-%m-%dT%H:%M:%SZ)
+          echo "{\"version\":\"$PACKAGE_VERSION\",\"buildHash\":\"$BUILD_HASH\",\"buildTime\":\"$BUILD_TIME\"}" > dist/build-info.json
+
+      - name: Check if package should be published
+        id: check-publish
+        run: |
+          PACKAGE_NAME=$(node -p "require('./package.json').name")
+          PACKAGE_VERSION=$(node -p "require('./package.json').version")
+          if npm view $PACKAGE_NAME@$PACKAGE_VERSION version > /dev/null 2>&1; then
+            echo "Version $PACKAGE_VERSION of $PACKAGE_NAME is already published on NPM. Skipping publish."
+            echo "should_publish=false" >> $GITHUB_OUTPUT
+          else
+            echo "Version $PACKAGE_VERSION of $PACKAGE_NAME is new. Proceeding to publish."
+            echo "should_publish=true" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-artifacts-${{ steps.build-hash.outputs.build_hash }}
+          path: |
+            dist/
+            !dist/**/*.map
+
+      - name: Publish new version
+        if: steps.check-publish.outputs.should_publish == 'true'
+        run: npm publish --access public
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
