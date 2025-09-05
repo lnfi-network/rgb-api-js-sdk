@@ -164,7 +164,10 @@ export class RgbMethods {
     const sendAssetData = {
       recipient_id: decodedInvoice.recipient_id,
       asset_id: data.asset_id || decodedInvoice.asset_id,
-      amount: data.amount || decodedInvoice.amount,
+      assignment: {
+        type: 'Fungible' || decodedInvoice?.assignment?.type,
+        value: data.amount || decodedInvoice?.assignment?.value,
+      },
       fee_rate: data.fee_rate, // Pass through from payRgbInvoice call
       skip_sync: data.skip_sync, // Pass through
       donation: data.donation || false,
