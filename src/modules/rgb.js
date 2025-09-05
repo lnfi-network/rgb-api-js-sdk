@@ -50,13 +50,23 @@ export class RgbMethods {
   }
 
   /**
-   * List all RGB transactions (transfers)
+   * List all RGB transactions
    * @param {Object} [data={}] - Request data
-   * @param {string} [data.asset_id] - Filter by asset ID (optional)
+   * @returns {Promise<import('../types').ListTransactionsResponse>} List transactions response
+   */
+  async listTransactions(data = {
+    skip_sync: false,
+  }) {
+    return this.client._request('post', '/listtransactions', data);
+  }
+
+  /**
+   * List all RGB transfers
+   * @param {string} asset_id - Asset ID
    * @returns {Promise<import('../types').ListTransfersResponse>} List transfers response
    */
-  async listTransactions(data = {}) {
-    return this.client._request('post', '/listtransfers', data);
+  async listTransfers(asset_id) {
+    return this.client._request('post', '/listtransfers', { asset_id });
   }
 
   /**
