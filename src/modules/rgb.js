@@ -141,6 +141,7 @@ export class RgbMethods {
       asset_id: data.asset_id,
       duration_seconds: data.duration_seconds,
       min_confirmations: data.min_confirmations,
+      withness: data.withness || false,
     };
     return this.client._request('post', '/rgbinvoice', requestData);
   }
@@ -173,7 +174,7 @@ export class RgbMethods {
       donation: data.donation || false,
       min_confirmations: data.min_confirmations || 1,
       // Use provided transport_endpoints or fall back to those from the invoice if available
-      transport_endpoints: data.transport_endpoints || decodedInvoice.transport_endpoints || [] 
+      transport_endpoints: data.transport_endpoints || decodedInvoice.transport_endpoints || []
     };
 
     // 3. Call sendAsset
@@ -259,31 +260,31 @@ export class RgbMethods {
    * @returns {string} - Subscription ID
    */
   subscribeToRgbTransactions(options) {
-    const { 
-      onTransaction, 
-      onError, 
-      pollingInterval = 5000, 
+    const {
+      onTransaction,
+      onError,
+      pollingInterval = 5000,
       maxStoredIds = 1000,
       skipInitialFetch = false
     } = options;
-    
+
     if (!onTransaction || typeof onTransaction !== 'function') {
       throw new Error('onTransaction callback is required and must be a function');
     }
-    
+
     // Validate polling interval to prevent excessive API calls
     if (pollingInterval < 1000) {
       console.warn('Warning: Polling interval less than 1000ms may cause performance issues');
     }
-    
+
     // Generate a unique subscription ID
     const subscriptionId = `rgb-tx-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
-    
+
     // Store last known transaction IDs and timestamp
     let lastTimestamp = Date.now();
     const knownTransactionIds = new Set();
     const transactionTimestamps = new Map(); // For tracking age of IDs
-    
+
     // Function to convert any timestamp format to a number
     const normalizeTimestamp = (timestamp) => {
       if (typeof timestamp === 'string') {
@@ -291,16 +292,16 @@ export class RgbMethods {
       }
       return timestamp || 0;
     };
-    
+
     // Function to limit the size of stored IDs
     const limitStoredIds = () => {
       if (knownTransactionIds.size <= maxStoredIds) return;
-      
+
       // Sort by timestamp (oldest first)
       const sortedIds = [...transactionTimestamps.entries()]
         .sort((a, b) => a[1] - b[1])
         .map(entry => entry[0]);
-      
+
       // Remove oldest entries to get back to the limit
       const idsToRemove = sortedIds.slice(0, knownTransactionIds.size - maxStoredIds);
       idsToRemove.forEach(id => {
@@ -308,7 +309,7 @@ export class RgbMethods {
         transactionTimestamps.delete(id);
       });
     };
-    
+
     // Initial load to get existing transactions (if not skipped)
     if (!skipInitialFetch) {
       this.listTransactions()
@@ -319,7 +320,7 @@ export class RgbMethods {
               knownTransactionIds.add(tx.idx);
               transactionTimestamps.set(tx.idx, normalizeTimestamp(tx.created_at));
             });
-            
+
             // Limit stored IDs if needed
             limitStoredIds();
           }
@@ -330,15 +331,15 @@ export class RgbMethods {
           }
         });
     }
-    
+
     // Set up polling interval with dynamic backoff
     let currentPollingInterval = pollingInterval;
     let consecutiveEmptyPolls = 0;
-    
+
     const intervalId = setInterval(async () => {
       try {
         const response = await this.listTransactions();
-        
+
         if (response && response.transfers && Array.isArray(response.transfers)) {
           // Check for new transactions
           const newTransactions = response.transfers.filter(tx => {
@@ -348,21 +349,21 @@ export class RgbMethods {
               transactionTimestamps.set(tx.idx, normalizeTimestamp(tx.created_at));
               return true;
             }
-            
+
             // Or if it's a known transaction but its timestamp is newer
             const txTimestamp = normalizeTimestamp(tx.created_at);
-            const isUpdated = knownTransactionIds.has(tx.idx) && 
-                   txTimestamp > (transactionTimestamps.get(tx.idx) || 0);
-                   
+            const isUpdated = knownTransactionIds.has(tx.idx) &&
+              txTimestamp > (transactionTimestamps.get(tx.idx) || 0);
+
             if (isUpdated) {
               // Update the timestamp
               transactionTimestamps.set(tx.idx, txTimestamp);
               return true;
             }
-            
+
             return false;
           });
-          
+
           // Update last timestamp
           if (response.transfers.length > 0) {
             const latestTimestamp = Math.max(
@@ -370,31 +371,31 @@ export class RgbMethods {
             );
             lastTimestamp = Math.max(lastTimestamp, latestTimestamp);
           }
-          
+
           // Limit stored IDs if needed
           limitStoredIds();
-          
+
           // Notify for each new transaction
           if (newTransactions.length > 0) {
             newTransactions.forEach(tx => {
               onTransaction(tx);
             });
-            
+
             // Reset consecutive empty polls counter
             consecutiveEmptyPolls = 0;
           } else {
             // Increment consecutive empty polls counter
             consecutiveEmptyPolls++;
-            
+
             // If we've had several empty polls, we can slow down polling
             // to reduce server load (up to 3x the original interval)
             if (consecutiveEmptyPolls > 5) {
-              const newInterval = Math.min(pollingInterval * 3, pollingInterval * (1 + consecutiveEmptyPolls/10));
-              
+              const newInterval = Math.min(pollingInterval * 3, pollingInterval * (1 + consecutiveEmptyPolls / 10));
+
               if (newInterval !== currentPollingInterval) {
                 currentPollingInterval = newInterval;
                 clearInterval(intervalId);
-                
+
                 // Update the interval with the new polling rate
                 const newIntervalId = setInterval(intervalId.callback, currentPollingInterval);
                 this.rgbTransactionPollingIntervals.set(subscriptionId, newIntervalId);
@@ -408,10 +409,10 @@ export class RgbMethods {
         }
       }
     }, pollingInterval);
-    
+
     // Store the callback for potential interval adjustments
     intervalId.callback = intervalId._onTimeout;
-    
+
     // Store subscription data
     this.rgbTransactionSubscriptions.set(subscriptionId, {
       onTransaction,
@@ -420,12 +421,12 @@ export class RgbMethods {
       currentPollingInterval,
       maxStoredIds
     });
-    
+
     this.rgbTransactionPollingIntervals.set(subscriptionId, intervalId);
-    
+
     return subscriptionId;
   }
-  
+
   /**
    * Unsubscribe from RGB transaction updates
    * @param {string} subscriptionId - The subscription ID to unsubscribe
@@ -435,17 +436,17 @@ export class RgbMethods {
     if (!this.rgbTransactionSubscriptions.has(subscriptionId)) {
       return false;
     }
-    
+
     // Clear the polling interval
     const intervalId = this.rgbTransactionPollingIntervals.get(subscriptionId);
     if (intervalId) {
       clearInterval(intervalId);
       this.rgbTransactionPollingIntervals.delete(subscriptionId);
     }
-    
+
     // Remove the subscription
     this.rgbTransactionSubscriptions.delete(subscriptionId);
-    
+
     return true;
   }
 }
