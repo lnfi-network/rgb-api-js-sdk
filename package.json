@@ -1,6 +1,6 @@
 {
   "name": "@lnfi-network/rgb-api-js-sdk",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "RGB API SDK for RGB Lightning Node",
   "main": "dist/rgb-api-sdk.cjs",
   "module": "dist/rgb-api-sdk.mjs",
