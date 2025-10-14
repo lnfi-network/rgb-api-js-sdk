@@ -22,7 +22,7 @@ export class RgbMethods {
    * @returns {Promise<import('../types').AssetBalanceResponse>} Asset balance response
    */
   async getAssetBalance(data) {
-    return this.client._request('post', '/assetbalance', data);
+    return this.client._request("post", "/assetbalance", data);
   }
 
   /**
@@ -32,7 +32,7 @@ export class RgbMethods {
    * @returns {Promise<import('../types').AssetMetadataResponse>} Asset metadata response
    */
   async getAssetMetadata(data) {
-    return this.client._request('post', '/assetmetadata', data);
+    return this.client._request("post", "/assetmetadata", data);
   }
 
   /**
@@ -46,7 +46,7 @@ export class RgbMethods {
       // Ensure filter_asset_schemas is included, even if empty array
       filter_asset_schemas: data.filter_asset_schemas,
     };
-    return this.client._request('post', '/listassets', requestData);
+    return this.client._request("post", "/listassets", requestData);
   }
 
   /**
@@ -54,10 +54,12 @@ export class RgbMethods {
    * @param {Object} [data={}] - Request data
    * @returns {Promise<import('../types').ListTransactionsResponse>} List transactions response
    */
-  async listTransactions(data = {
-    skip_sync: false,
-  }) {
-    return this.client._request('post', '/listtransactions', data);
+  async listTransactions(
+    data = {
+      skip_sync: false,
+    }
+  ) {
+    return this.client._request("post", "/listtransactions", data);
   }
 
   /**
@@ -66,7 +68,7 @@ export class RgbMethods {
    * @returns {Promise<import('../types').ListTransfersResponse>} List transfers response
    */
   async listTransfers(asset_id) {
-    return this.client._request('post', '/listtransfers', { asset_id });
+    return this.client._request("post", "/listtransfers", { asset_id });
   }
 
   /**
@@ -80,7 +82,7 @@ export class RgbMethods {
    * @returns {Promise<import('../types').IssueAssetCFAResponse>} Issue asset response
    */
   async issueAssetCfa(data) {
-    return this.client._request('post', '/issueassetcfa', data);
+    return this.client._request("post", "/issueassetcfa", data);
   }
 
   /**
@@ -93,7 +95,7 @@ export class RgbMethods {
    * @returns {Promise<import('../types').IssueAssetNIAResponse>} Issue asset response
    */
   async issueAssetNia(data) {
-    return this.client._request('post', '/issueassetnia', data);
+    return this.client._request("post", "/issueassetnia", data);
   }
 
   /**
@@ -108,7 +110,7 @@ export class RgbMethods {
    * @returns {Promise<import('../types').IssueAssetUDAResponse>} Issue asset response
    */
   async issueAssetUda(data) {
-    return this.client._request('post', '/issueassetuda', data);
+    return this.client._request("post", "/issueassetuda", data);
   }
 
   /**
@@ -125,7 +127,7 @@ export class RgbMethods {
    * @returns {Promise<import('../types').SendAssetResponse>} Send asset response
    */
   async sendAsset(data) {
-    return this.client._request('post', '/sendasset', data);
+    return this.client._request("post", "/sendasset", data);
   }
 
   /**
@@ -141,9 +143,9 @@ export class RgbMethods {
       asset_id: data.asset_id,
       duration_seconds: data.duration_seconds,
       min_confirmations: data.min_confirmations,
-      withness: data.withness || false,
+      witness: data.witness || false,
     };
-    return this.client._request('post', '/rgbinvoice', requestData);
+    return this.client._request("post", "/rgbinvoice", requestData);
   }
 
   /**
@@ -159,14 +161,16 @@ export class RgbMethods {
    */
   async payRgbInvoice(data) {
     // 1. Decode the RGB invoice
-    const decodedInvoice = await this.decodeRgbInvoice({ invoice: data.invoice });
+    const decodedInvoice = await this.decodeRgbInvoice({
+      invoice: data.invoice,
+    });
 
     // 2. Prepare data for sendAsset
     const sendAssetData = {
       recipient_id: decodedInvoice.recipient_id,
       asset_id: data.asset_id || decodedInvoice.asset_id,
       assignment: {
-        type: 'Fungible' || decodedInvoice?.assignment?.type,
+        type: "Fungible" || decodedInvoice?.assignment?.type,
         value: data.amount || decodedInvoice?.assignment?.value,
       },
       fee_rate: data.fee_rate, // Pass through from payRgbInvoice call
@@ -174,7 +178,8 @@ export class RgbMethods {
       donation: data.donation || false,
       min_confirmations: data.min_confirmations || 1,
       // Use provided transport_endpoints or fall back to those from the invoice if available
-      transport_endpoints: data.transport_endpoints || decodedInvoice.transport_endpoints || []
+      transport_endpoints:
+        data.transport_endpoints || decodedInvoice.transport_endpoints || [],
     };
 
     // 3. Call sendAsset
@@ -188,7 +193,7 @@ export class RgbMethods {
    * @returns {Promise<import('../types').DecodeRGBInvoiceResponse>} Decode RGB invoice response
    */
   async decodeRgbInvoice(data) {
-    return this.client._request('post', '/decodergbinvoice', data);
+    return this.client._request("post", "/decodergbinvoice", data);
   }
 
   /**
@@ -200,7 +205,7 @@ export class RgbMethods {
    * @returns {Promise<import('../types').FailTransfersResponse>} Fail transfers response
    */
   async failTransfers(data) {
-    return this.client._request('post', '/failtransfers', data);
+    return this.client._request("post", "/failtransfers", data);
   }
 
   /**
@@ -210,7 +215,7 @@ export class RgbMethods {
    * @returns {Promise<import('../types').GetAssetMediaResponse>} Get asset media response
    */
   async getAssetMedia(data) {
-    return this.client._request('post', '/getassetmedia', data);
+    return this.client._request("post", "/getassetmedia", data);
   }
 
   /**
@@ -223,7 +228,7 @@ export class RgbMethods {
     const requestData = {
       skip_sync: data.skip_sync,
     };
-    return this.client._request('post', '/refreshtransfers', requestData);
+    return this.client._request("post", "/refreshtransfers", requestData);
   }
 
   /**
@@ -231,7 +236,7 @@ export class RgbMethods {
    * @returns {Promise<import('../types').EmptyResponse>} Sync response
    */
   async syncRgbWallet() {
-    return this.client._request('post', '/sync', {});
+    return this.client._request("post", "/sync", {});
   }
 
   /**
@@ -243,10 +248,10 @@ export class RgbMethods {
    */
   async postAssetMedia(data) {
     const formData = new FormData();
-    formData.append('file', data.file);
+    formData.append("file", data.file);
     // Note: Axios should automatically set Content-Type to multipart/form-data
     // when provided with a FormData object.
-    return this.client._request('post', '/postassetmedia', formData);
+    return this.client._request("post", "/postassetmedia", formData);
   }
 
   /**
@@ -265,20 +270,26 @@ export class RgbMethods {
       onError,
       pollingInterval = 5000,
       maxStoredIds = 1000,
-      skipInitialFetch = false
+      skipInitialFetch = false,
     } = options;
 
-    if (!onTransaction || typeof onTransaction !== 'function') {
-      throw new Error('onTransaction callback is required and must be a function');
+    if (!onTransaction || typeof onTransaction !== "function") {
+      throw new Error(
+        "onTransaction callback is required and must be a function"
+      );
     }
 
     // Validate polling interval to prevent excessive API calls
     if (pollingInterval < 1000) {
-      console.warn('Warning: Polling interval less than 1000ms may cause performance issues');
+      console.warn(
+        "Warning: Polling interval less than 1000ms may cause performance issues"
+      );
     }
 
     // Generate a unique subscription ID
-    const subscriptionId = `rgb-tx-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+    const subscriptionId = `rgb-tx-${Date.now()}-${Math.random()
+      .toString(36)
+      .substr(2, 9)}`;
 
     // Store last known transaction IDs and timestamp
     let lastTimestamp = Date.now();
@@ -287,7 +298,7 @@ export class RgbMethods {
 
     // Function to convert any timestamp format to a number
     const normalizeTimestamp = (timestamp) => {
-      if (typeof timestamp === 'string') {
+      if (typeof timestamp === "string") {
         return new Date(timestamp).getTime();
       }
       return timestamp || 0;
@@ -300,11 +311,14 @@ export class RgbMethods {
       // Sort by timestamp (oldest first)
       const sortedIds = [...transactionTimestamps.entries()]
         .sort((a, b) => a[1] - b[1])
-        .map(entry => entry[0]);
+        .map((entry) => entry[0]);
 
       // Remove oldest entries to get back to the limit
-      const idsToRemove = sortedIds.slice(0, knownTransactionIds.size - maxStoredIds);
-      idsToRemove.forEach(id => {
+      const idsToRemove = sortedIds.slice(
+        0,
+        knownTransactionIds.size - maxStoredIds
+      );
+      idsToRemove.forEach((id) => {
         knownTransactionIds.delete(id);
         transactionTimestamps.delete(id);
       });
@@ -313,20 +327,27 @@ export class RgbMethods {
     // Initial load to get existing transactions (if not skipped)
     if (!skipInitialFetch) {
       this.listTransactions()
-        .then(response => {
-          if (response && response.transfers && Array.isArray(response.transfers)) {
+        .then((response) => {
+          if (
+            response &&
+            response.transfers &&
+            Array.isArray(response.transfers)
+          ) {
             // Store known transaction IDs with timestamps
-            response.transfers.forEach(tx => {
+            response.transfers.forEach((tx) => {
               knownTransactionIds.add(tx.idx);
-              transactionTimestamps.set(tx.idx, normalizeTimestamp(tx.created_at));
+              transactionTimestamps.set(
+                tx.idx,
+                normalizeTimestamp(tx.created_at)
+              );
             });
 
             // Limit stored IDs if needed
             limitStoredIds();
           }
         })
-        .catch(error => {
-          if (onError && typeof onError === 'function') {
+        .catch((error) => {
+          if (onError && typeof onError === "function") {
             onError(error);
           }
         });
@@ -340,19 +361,27 @@ export class RgbMethods {
       try {
         const response = await this.listTransactions();
 
-        if (response && response.transfers && Array.isArray(response.transfers)) {
+        if (
+          response &&
+          response.transfers &&
+          Array.isArray(response.transfers)
+        ) {
           // Check for new transactions
-          const newTransactions = response.transfers.filter(tx => {
+          const newTransactions = response.transfers.filter((tx) => {
             // Check if this is a new transaction we haven't seen before
             if (!knownTransactionIds.has(tx.idx)) {
               knownTransactionIds.add(tx.idx);
-              transactionTimestamps.set(tx.idx, normalizeTimestamp(tx.created_at));
+              transactionTimestamps.set(
+                tx.idx,
+                normalizeTimestamp(tx.created_at)
+              );
               return true;
             }
 
             // Or if it's a known transaction but its timestamp is newer
             const txTimestamp = normalizeTimestamp(tx.created_at);
-            const isUpdated = knownTransactionIds.has(tx.idx) &&
+            const isUpdated =
+              knownTransactionIds.has(tx.idx) &&
               txTimestamp > (transactionTimestamps.get(tx.idx) || 0);
 
             if (isUpdated) {
@@ -367,7 +396,9 @@ export class RgbMethods {
           // Update last timestamp
           if (response.transfers.length > 0) {
             const latestTimestamp = Math.max(
-              ...response.transfers.map(tx => normalizeTimestamp(tx.created_at))
+              ...response.transfers.map((tx) =>
+                normalizeTimestamp(tx.created_at)
+              )
             );
             lastTimestamp = Math.max(lastTimestamp, latestTimestamp);
           }
@@ -377,7 +408,7 @@ export class RgbMethods {
 
           // Notify for each new transaction
           if (newTransactions.length > 0) {
-            newTransactions.forEach(tx => {
+            newTransactions.forEach((tx) => {
               onTransaction(tx);
             });
 
@@ -390,21 +421,30 @@ export class RgbMethods {
             // If we've had several empty polls, we can slow down polling
             // to reduce server load (up to 3x the original interval)
             if (consecutiveEmptyPolls > 5) {
-              const newInterval = Math.min(pollingInterval * 3, pollingInterval * (1 + consecutiveEmptyPolls / 10));
+              const newInterval = Math.min(
+                pollingInterval * 3,
+                pollingInterval * (1 + consecutiveEmptyPolls / 10)
+              );
 
               if (newInterval !== currentPollingInterval) {
                 currentPollingInterval = newInterval;
                 clearInterval(intervalId);
 
                 // Update the interval with the new polling rate
-                const newIntervalId = setInterval(intervalId.callback, currentPollingInterval);
-                this.rgbTransactionPollingIntervals.set(subscriptionId, newIntervalId);
+                const newIntervalId = setInterval(
+                  intervalId.callback,
+                  currentPollingInterval
+                );
+                this.rgbTransactionPollingIntervals.set(
+                  subscriptionId,
+                  newIntervalId
+                );
               }
             }
           }
         }
       } catch (error) {
-        if (onError && typeof onError === 'function') {
+        if (onError && typeof onError === "function") {
           onError(error);
         }
       }
@@ -419,7 +459,7 @@ export class RgbMethods {
       onError,
       pollingInterval,
       currentPollingInterval,
-      maxStoredIds
+      maxStoredIds,
     });
 
     this.rgbTransactionPollingIntervals.set(subscriptionId, intervalId);
