@@ -30,7 +30,7 @@ export class NodeMethods {
     } catch (error) {
       // Handle errors thrown by _request (e.g., network errors)
       if (error.message.includes('Network Error')) {
-        return 255; // NON_EXISTING (API endpoint not reachable)
+        return "NON_EXISTING"; // NON_EXISTING (API endpoint not reachable)
       } else {
         // Re-throw any other unexpected errors from _request
         throw error;
