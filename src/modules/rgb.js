@@ -36,6 +36,36 @@ export class RgbMethods {
   }
 
   /**
+   * Convert hex bytes to RGB asset ID
+   * @param {Object} data - Request data
+   * @param {string} data.hex_bytes - 64-character hex string (32 bytes)
+   * @returns {Promise<{asset_id: string}>} Asset ID in RGB format (rgb:xxx)
+   * @example
+   * const result = await client.rgb.assetIdFromHexBytes({
+   *   hex_bytes: "9266c8ffd37caee3809ebe465d9eb29666613eb47737f3f27444c56720b58d74"
+   * });
+   * // result: { asset_id: "rgb:kmbI~9N8-ruOAnr5-GXZ6ylm-ZhPrR3N-~PydETF-ZyC1jXQ" }
+   */
+  async assetIdFromHexBytes(data) {
+    return this.client._request("post", "/assetidfromhexbytes", data);
+  }
+
+  /**
+   * Convert RGB asset ID to hex bytes
+   * @param {Object} data - Request data
+   * @param {string} data.asset_id - RGB asset ID in rgb:xxx format
+   * @returns {Promise<{hex_bytes: string}>} Hex bytes string (64 characters, 32 bytes)
+   * @example
+   * const result = await client.rgb.assetIdToHexBytes({
+   *   asset_id: "rgb:kmbI~9N8-ruOAnr5-GXZ6ylm-ZhPrR3N-_PydETF-ZyC1jXQ"
+   * });
+   * // result: { hex_bytes: "9266c8ffd37caee3809ebe465d9eb29666613eb47737e3f27444c56720b58d74" }
+   */
+  async assetIdToHexBytes(data) {
+    return this.client._request("post", "/assetidtohexbytes", data);
+  }
+
+  /**
    * List all issued assets
    * @param {Object} [data={}] - Request data
    * @param {Array<import('../types').AssetSchema>} [data.filter_asset_schemas] - Optional filter by asset schemas

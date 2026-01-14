@@ -117,6 +117,20 @@ await client.rgb.sendAssets({
     }]
   }
 });
+
+// Convert hex to RGB asset ID
+const rgbId = await client.rgb.assetIdFromHexBytes({
+  hex_bytes: '9266c8ffd37caee3809ebe465d9eb29666613eb47737f3f27444c56720b58d74'
+});
+console.log('RGB Asset ID:', rgbId.asset_id);
+// Output: rgb:kmbI~9N8-ruOAnr5-GXZ6ylm-ZhPrR3N-~PydETF-ZyC1jXQ
+
+// Convert RGB asset ID to hex
+const hexBytes = await client.rgb.assetIdToHexBytes({
+  asset_id: 'rgb:kmbI~9N8-ruOAnr5-GXZ6ylm-ZhPrR3N-_PydETF-ZyC1jXQ'
+});
+console.log('Hex Bytes:', hexBytes.hex_bytes);
+// Output: 9266c8ffd37caee3809ebe465d9eb29666613eb47737e3f27444c56720b58d74
 ```
 
 ### Lightning Network Operations

@@ -47,6 +47,14 @@ export interface AssetMetadataRequest {
   asset_id: string;
 }
 
+export interface AssetIdFromHexBytesRequest {
+  hex_bytes: string;
+}
+
+export interface AssetIdToHexBytesRequest {
+  asset_id: string;
+}
+
 export interface BackupRequest {
   backup_path: string;
   password: string;
@@ -347,6 +355,14 @@ export interface FailTransfersResponse {
 
 export interface GetAssetMediaResponse {
   bytes_hex: string;
+}
+
+export interface AssetIdFromHexBytesResponse {
+  asset_id: string;
+}
+
+export interface AssetIdToHexBytesResponse {
+  hex_bytes: string;
 }
 
 export interface GetChannelIdResponse {
@@ -845,6 +861,18 @@ export declare class RgbApiClient {
    * POST /listassets
    */
   listAssets(data?: ListAssetsRequest): Promise<ListAssetsResponse>;
+
+  /**
+   * Convert hex bytes to RGB asset ID
+   * POST /assetidfromhexbytes
+   */
+  assetIdFromHexBytes(data: AssetIdFromHexBytesRequest): Promise<AssetIdFromHexBytesResponse>;
+
+  /**
+   * Convert RGB asset ID to hex bytes
+   * POST /assetidtohexbytes
+   */
+  assetIdToHexBytes(data: AssetIdToHexBytesRequest): Promise<AssetIdToHexBytesResponse>;
 
   /**
    * List transfers
