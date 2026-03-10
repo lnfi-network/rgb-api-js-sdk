@@ -4,7 +4,7 @@ import { RgbApiClient } from '@lnfi-network/rgb-api-js-sdk';
 
 
 const client = new RgbApiClient({
-    baseUrl:"http://34.84.66.29:3001",
+    baseUrl:"http://34.84.69.164:3001",
   },"token");
 
 async function demoGetAddress() {
