@@ -96,13 +96,40 @@ export class LightningMethods {
   /**
    * Create a Lightning Network invoice (BOLT11)
    * @param {Object} data - Request data
-   * @param {number} data.amt_msat - Amount in millisatoshis
+   * @param {number} [data.amt_msat] - Amount in millisatoshis
    * @param {number} [data.expiry_sec] - Invoice expiry in seconds (optional)
    * @param {string} [data.asset_id] - Asset ID for RGB-LNP invoices (optional)
    * @param {number} [data.asset_amount] - Asset amount for RGB-LNP invoices (optional)
+   * @param {string} [data.payment_hash] - 32-byte hex, for HODL invoices (mutually exclusive with preimage)
+   * @param {string} [data.preimage] - Preimage hex (mutually exclusive with payment_hash)
+   * @param {string} [data.memo] - Invoice memo (optional)
    * @returns {Promise<import('../types').LNInvoiceResponse>} Create invoice response
    */
   async createInvoice(data) {
+    return this.client._request('post', '/lninvoice', data);
+  }
+
+  /**
+   * Create a HODL invoice using an external payment_hash.
+   * The invoice won't auto-settle — the node holds the HTLC until claim_funds is called
+   * (automatically by the node when a matching PaymentSent event is detected).
+   * @param {Object} data - Request data
+   * @param {string} data.payment_hash - 32-byte hex payment hash (required, extracted from BTC invoice)
+   * @param {number} data.expiry_sec - Invoice expiry in seconds (required)
+   * @param {string} [data.asset_id] - RGB asset ID (optional)
+   * @param {number} [data.asset_amount] - RGB asset amount (optional)
+   * @param {number} [data.amt_msat] - Amount in millisatoshis (optional)
+   * @param {string} [data.memo] - Invoice memo (optional)
+   * @returns {Promise<import('../types').LNInvoiceResponse>} Created HODL invoice response
+   * @throws {Error} If payment_hash is missing or preimage is provided
+   */
+  async createHodlInvoice(data) {
+    if (!data || !data.payment_hash) {
+      throw new Error('payment_hash is required for HODL invoice');
+    }
+    if (data.preimage) {
+      throw new Error('preimage must not be provided for HODL invoice (mutually exclusive with payment_hash)');
+    }
     return this.client._request('post', '/lninvoice', data);
   }
 

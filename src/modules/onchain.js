@@ -26,7 +26,7 @@ export class OnchainMethods {
    * @returns {Promise<import('../types').BtcBalanceResponse>} BTC balance response for both vanilla and colored wallets
    */
   async getBtcBalance(data = {}) {
-    return this.client._request('post', '/btcbalance', data);
+    return this.client._request('post', '/btcbalance', { skip_sync: false, ...data });
   }
 
   /**
@@ -53,7 +53,7 @@ export class OnchainMethods {
    * @returns {Promise<import('../types').EmptyResponse>} Resolves when UTXOs are successfully created
    */
   async createUtxos(data = {}) {
-    return this.client._request('post', '/createutxos', data);
+    return this.client._request('post', '/createutxos', { fee_rate: 2, skip_sync: false, ...data });
   }
 
   /**
@@ -73,7 +73,7 @@ export class OnchainMethods {
    * @returns {Promise<import('../types').ListTransactionsResponse>} List transactions response
    */
   async listOnchainTransactions(data = {}) {
-    return this.client._request('post', '/listtransactions', data);
+    return this.client._request('post', '/listtransactions', { skip_sync: false, ...data });
   }
 
   /**
@@ -83,6 +83,6 @@ export class OnchainMethods {
    * @returns {Promise<import('../types').ListUnspentsResponse>} List unspents response
    */
   async listUnspents(data = {}) {
-    return this.client._request('post', '/listunspents', data);
+    return this.client._request('post', '/listunspents', { skip_sync: false, ...data });
   }
 }

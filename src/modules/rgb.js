@@ -234,8 +234,8 @@ export class RgbMethods {
    * @param {boolean} [data.skip_sync] - Skip syncing (optional)
    * @returns {Promise<import('../types').FailTransfersResponse>} Fail transfers response
    */
-  async failTransfers(data) {
-    return this.client._request("post", "/failtransfers", data);
+  async failTransfers(data = {}) {
+    return this.client._request("post", "/failtransfers", { no_asset_only: false, skip_sync: false, ...data });
   }
 
   /**

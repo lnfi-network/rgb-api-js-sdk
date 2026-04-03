@@ -190,10 +190,22 @@ export interface ListUnspentsRequest {
 }
 
 export interface LNInvoiceRequest {
-  amt_msat: number;
+  amt_msat?: number;
   expiry_sec?: number;
   asset_id?: string;
   asset_amount?: number;
+  payment_hash?: string;
+  preimage?: string;
+  memo?: string;
+}
+
+export interface LNHodlInvoiceRequest {
+  payment_hash: string;
+  expiry_sec: number;
+  asset_id?: string;
+  asset_amount?: number;
+  amt_msat?: number;
+  memo?: string;
 }
 
 export interface MakerExecuteRequest {
@@ -595,6 +607,7 @@ export interface Payment {
   created_at: number;
   updated_at: number;
   payee_pubkey: string;
+  preimage?: string;
 }
 
 export interface GetPaymentResponse {
@@ -801,6 +814,12 @@ export declare class RgbApiClient {
    * POST /lninvoice
    */
   createInvoice(data: LNInvoiceRequest): Promise<LNInvoiceResponse>;
+
+  /**
+   * Create a HODL invoice (invoice with external payment_hash, won't auto-settle)
+   * POST /lninvoice
+   */
+  createHodlInvoice(data: LNHodlInvoiceRequest): Promise<LNInvoiceResponse>;
 
   /**
    * Decode a LN invoice
