@@ -24,7 +24,6 @@ on:
 jobs:
   build-and-publish:
     runs-on: ubuntu-latest
-    environment: prod-deploy
     steps:
       - name: Checkout
         uses: actions/checkout@v4
