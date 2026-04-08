@@ -156,4 +156,22 @@ export class NodeMethods {
   async restoreNode(data) {
     return this.client._request('post', '/restore', data);
   }
+
+  /**
+   * Revoke an authentication token
+   * @param {Object} data - Request data
+   * @param {string} data.token - The token to revoke
+   * @returns {Promise<import('../types').EmptyResponse>} Resolves when token is revoked
+   */
+  async revokeToken(data) {
+    return this.client._request('post', '/revoketoken', data);
+  }
+
+  /**
+   * Gracefully shutdown the node
+   * @returns {Promise<import('../types').EmptyResponse>} Resolves when shutdown is initiated
+   */
+  async shutdown() {
+    return this.client._request('post', '/shutdown');
+  }
 }

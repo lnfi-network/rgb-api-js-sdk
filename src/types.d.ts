@@ -1,7 +1,7 @@
 /**
  * TypeScript type definitions for RGB API SDK
  * This file provides type hints for better IDE support
- * Generated from OpenAPI specification
+ * Generated from OpenAPI specification (v1.1.7)
  */
 
 // ===== Basic Configuration =====
@@ -12,13 +12,15 @@ export interface RgbApiClientOptions {
 }
 
 // ===== Basic Types and Enums =====
-export type BitcoinNetwork = "Mainnet" | "Testnet" | "Signet" | "Regtest";
+export type BitcoinNetwork = "Mainnet" | "Testnet" | "Testnet4" | "Signet" | "Regtest";
 export type AssetIface = "RGB20" | "RGB21" | "RGB25";
-export type AssetSchema = "Nia" | "Uda" | "Cfa";
+export type AssetSchema = "Nia" | "Uda" | "Cfa" | "Ifa";
 export type ChannelStatus = "Opening" | "Opened" | "Closing";
 export type HTLCStatus = "Pending" | "Succeeded" | "Failed";
 export type InvoiceStatus = "Pending" | "Succeeded" | "Failed" | "Expired";
 export type IndexerProtocol = "Electrum" | "Esplora";
+export type NodeState = "None" | "Locked" | "Running" | "Changing";
+export type RecipientType = "Blind" | "Witness";
 export type SwapStatus =
   | "Waiting"
   | "Pending"
@@ -27,16 +29,23 @@ export type SwapStatus =
   | "Failed";
 export type TransactionType = "RgbSend" | "Drain" | "CreateUtxos" | "User";
 export type TransferStatus =
+  | "Initiated"
   | "WaitingCounterparty"
   | "WaitingConfirmations"
   | "Settled"
   | "Failed";
 export type TransferKind =
   | "Issuance"
+  | "Inflation"
   | "ReceiveBlind"
   | "ReceiveWitness"
   | "Send";
 export type TransportType = "JsonRpc";
+
+export type Assignment =
+  | { type: "Fungible"; value: number }
+  | { type: "NonFungible"; value: unknown }
+  | { type: string; value: unknown };
 
 // ===== Request Interfaces =====
 export interface AssetBalanceRequest {
@@ -89,8 +98,8 @@ export interface ConnectPeerRequest {
 
 export interface CreateUtxosRequest {
   up_to?: boolean;
-  num?: number;
-  size?: number;
+  num?: number | null;
+  size?: number | null;
   fee_rate?: number;
   skip_sync?: boolean;
 }
@@ -131,11 +140,19 @@ export interface GetPaymentRequest {
 
 export interface GetSwapRequest {
   payment_hash: string;
-  taker?: boolean;
+  taker: boolean;
+}
+
+export interface InflateRequest {
+  asset_id: string;
+  inflation_amounts: number[];
+  fee_rate: number;
+  min_confirmations: number;
 }
 
 export interface InitRequest {
   password: string;
+  mnemonic?: string | null;
 }
 
 export interface InvoiceStatusRequest {
@@ -148,6 +165,15 @@ export interface IssueAssetCFARequest {
   details: string;
   precision: number;
   file_digest?: string;
+}
+
+export interface IssueAssetIFARequest {
+  amounts: number[];
+  inflation_amounts?: number[];
+  ticker: string;
+  name: string;
+  precision: number;
+  reject_list_url?: string | null;
 }
 
 export interface IssueAssetNIARequest {
@@ -169,8 +195,8 @@ export interface IssueAssetUDARequest {
 export interface KeysendRequest {
   dest_pubkey: string;
   amt_msat: number;
-  asset_id?: string;
-  asset_amount?: number;
+  asset_id?: string | null;
+  asset_amount?: number | null;
 }
 
 export interface ListAssetsRequest {
@@ -190,10 +216,10 @@ export interface ListUnspentsRequest {
 }
 
 export interface LNInvoiceRequest {
-  amt_msat?: number;
+  amt_msat?: number | null;
   expiry_sec?: number;
-  asset_id?: string;
-  asset_amount?: number;
+  asset_id?: string | null;
+  asset_amount?: number | null;
   payment_hash?: string;
   preimage?: string;
   memo?: string;
@@ -217,8 +243,8 @@ export interface MakerExecuteRequest {
 export interface MakerInitRequest {
   qty_from: number;
   qty_to: number;
-  from_asset: string;
-  to_asset: string;
+  from_asset?: string | null;
+  to_asset?: string | null;
   timeout_sec: number;
 }
 
@@ -226,13 +252,14 @@ export interface OpenChannelRequest {
   peer_pubkey_and_opt_addr: string;
   capacity_sat: number;
   push_msat?: number;
-  asset_amount?: number;
-  asset_id?: string;
+  push_asset_amount?: number;
+  asset_amount?: number | null;
+  asset_id?: string | null;
   public?: boolean;
   with_anchors?: boolean;
-  fee_base_msat?: number;
-  fee_proportional_millionths?: number;
-  temporary_channel_id?: string;
+  fee_base_msat?: number | null;
+  fee_proportional_millionths?: number | null;
+  temporary_channel_id?: string | null;
 }
 
 export interface PostAssetMediaRequest {
@@ -248,20 +275,46 @@ export interface RestoreRequest {
   password: string;
 }
 
-export interface RgbInvoiceRequest {
-  min_confirmations: number;
-  asset_id: string;
-  duration_seconds?: number;
+export interface RevokeTokenRequest {
+  token: string;
 }
 
-export interface SendAssetRequest {
-  asset_id: string;
-  amount: number;
+export interface RgbInvoiceRequest {
+  min_confirmations: number;
+  asset_id?: string | null;
+  expiration_timestamp?: number | null;
+  witness?: boolean;
+  assignment?: Assignment | null;
+}
+
+export interface Recipient {
   recipient_id: string;
+  assignment: Assignment;
+  transport_endpoints: string[];
+  witness_data?: WitnessData | null;
+}
+
+export interface WitnessData {
+  amount_sat: number;
+  blinding?: number | null;
+}
+
+/** Flat convenience format (single recipient) or raw recipient_map format */
+export interface SendAssetRequest {
+  /** Flat: RGB asset ID (rgb: format) */
+  asset_id?: string;
+  /** Flat: amount to send */
+  amount?: number;
+  /** Flat: recipient ID */
+  recipient_id?: string;
+  /** Flat: transport endpoints */
+  transport_endpoints?: string[];
+  /** Raw: pre-built recipient_map keyed by asset_id */
+  recipient_map?: Record<string, Recipient[]>;
+  expiration_timestamp?: number | null;
   donation?: boolean;
   fee_rate?: number;
   min_confirmations?: number;
-  transport_endpoints?: string[];
   skip_sync?: boolean;
 }
 
@@ -280,6 +333,9 @@ export interface SendOnionMessageRequest {
 
 export interface SendPaymentRequest {
   invoice: string;
+  amt_msat?: number | null;
+  asset_id?: string | null;
+  asset_amount?: number | null;
 }
 
 export interface SignMessageRequest {
@@ -292,14 +348,24 @@ export interface TakerRequest {
 
 export interface UnlockRequest {
   password: string;
-  bitcoind_rpc_username?: string;
-  bitcoind_rpc_password?: string;
-  bitcoind_rpc_host?: string;
-  bitcoind_rpc_port?: number;
-  indexer_url?: string;
-  proxy_endpoint?: string;
-  announce_addresses?: string[];
-  announce_alias?: string;
+  bitcoind_rpc_username: string;
+  bitcoind_rpc_password: string;
+  bitcoind_rpc_host: string;
+  bitcoind_rpc_port: number;
+  announce_addresses: string[];
+  indexer_url?: string | null;
+  proxy_endpoint?: string | null;
+  announce_alias?: string | null;
+}
+
+export interface WebhookSubscribeRequest {
+  url: string;
+  events: string[];
+  secret?: string;
+}
+
+export interface WebhookUnsubscribeRequest {
+  subscription_id: string;
 }
 
 // ===== Response Interfaces =====
@@ -336,26 +402,30 @@ export interface CheckIndexerUrlResponse {
 }
 
 export interface DecodeLNInvoiceResponse {
-  amt_msat: number;
+  amt_msat: number | null;
   expiry_sec: number;
   timestamp: number;
-  asset_id?: string;
-  asset_amount?: number;
+  asset_id?: string | null;
+  asset_amount?: number | null;
   payment_hash: string;
   payment_secret: string;
-  payee_pubkey: string;
+  payee_pubkey: string | null;
   network: BitcoinNetwork;
 }
 
 export interface DecodeRGBInvoiceResponse {
   recipient_id: string;
   asset_iface: AssetIface;
-  asset_id: string;
+  asset_schema?: AssetSchema | null;
+  asset_id: string | null;
   amount: number;
   network: BitcoinNetwork;
-  expiration_timestamp?: number;
+  expiration_timestamp?: number | null;
   transport_endpoints: string[];
+  recipient_type: RecipientType;
 }
+
+export interface EmptyResponse {}
 
 export interface EstimateFeeResponse {
   fee_rate: number;
@@ -379,6 +449,10 @@ export interface AssetIdToHexBytesResponse {
 
 export interface GetChannelIdResponse {
   channel_id: string;
+}
+
+export interface InflateResponse {
+  txid: string;
 }
 
 export interface InitResponse {
@@ -430,6 +504,10 @@ export interface NodeInfoResponse {
   network_channels: number;
 }
 
+export interface NodeStateResponse {
+  state: NodeState;
+}
+
 export interface OpenChannelResponse {
   temporary_channel_id: string;
 }
@@ -441,7 +519,7 @@ export interface PostAssetMediaResponse {
 export interface RgbInvoiceResponse {
   recipient_id: string;
   invoice: string;
-  expiration_timestamp: number;
+  expiration_timestamp: number | null;
   batch_transfer_idx: number;
 }
 
@@ -454,8 +532,9 @@ export interface SendBtcResponse {
 }
 
 export interface SendPaymentResponse {
-  payment_hash: string;
-  payment_secret: string;
+  payment_id: string;
+  payment_hash: string | null;
+  payment_secret: string | null;
   status: HTLCStatus;
 }
 
@@ -463,10 +542,25 @@ export interface SignMessageResponse {
   signed_message: string;
 }
 
+export interface WebhookSubscription {
+  subscription_id: string;
+  url: string;
+  events: string[];
+}
+
+export interface WebhookListResponse {
+  subscriptions: WebhookSubscription[];
+}
+
+export interface WebhookSubscribeResponse {
+  subscription_id: string;
+}
+
 // ===== Complex Object Interfaces =====
 export interface Media {
   file_path: string;
   mime: string;
+  digest: string;
 }
 
 export interface EmbeddedMedia {
@@ -481,22 +575,22 @@ export interface ProofOfReserves {
 
 export interface Token {
   index: number;
-  ticker: string;
-  name: string;
-  details?: string;
-  embedded_media?: EmbeddedMedia;
-  media?: Media;
+  ticker?: string | null;
+  name?: string | null;
+  details?: string | null;
+  embedded_media?: EmbeddedMedia | null;
+  media?: Media | null;
   attachments?: { [key: string]: Media };
-  reserves?: ProofOfReserves;
+  reserves?: ProofOfReserves | null;
 }
 
 export interface TokenLight {
   index: number;
-  ticker: string;
-  name: string;
-  details?: string;
+  ticker?: string | null;
+  name?: string | null;
+  details?: string | null;
   embedded_media?: boolean;
-  media?: Media;
+  media?: Media | null;
   attachments?: { [key: string]: Media };
   reserves?: boolean;
 }
@@ -504,13 +598,15 @@ export interface TokenLight {
 export interface AssetMetadataResponse {
   asset_iface: AssetIface;
   asset_schema: AssetSchema;
-  issued_supply: number;
+  initial_supply: number;
+  max_supply: number;
+  known_circulating_supply: number;
   timestamp: number;
   name: string;
   precision: number;
-  ticker?: string;
-  details?: string;
-  token?: Token;
+  ticker?: string | null;
+  details?: string | null;
+  token?: Token | null;
 }
 
 export interface AssetNIA {
@@ -532,30 +628,50 @@ export interface AssetUDA {
   asset_iface: AssetIface;
   ticker?: string;
   name: string;
-  details?: string;
+  details?: string | null;
   precision: number;
-  issued_supply: number;
   timestamp: number;
   added_at: number;
   balance: AssetBalanceResponse;
-  token?: TokenLight;
+  token?: TokenLight | null;
 }
 
 export interface AssetCFA {
   asset_id: string;
   asset_iface: AssetIface;
   name: string;
-  details?: string;
+  details?: string | null;
   precision: number;
   issued_supply: number;
   timestamp: number;
   added_at: number;
   balance: AssetBalanceResponse;
-  media?: Media;
+  media?: Media | null;
+}
+
+export interface AssetIFA {
+  asset_id: string;
+  asset_iface: AssetIface;
+  ticker: string;
+  name: string;
+  details?: string | null;
+  precision: number;
+  initial_supply: number;
+  max_supply: number;
+  known_circulating_supply: number;
+  timestamp: number;
+  added_at: number;
+  balance: AssetBalanceResponse;
+  media?: Media | null;
+  reject_list_url?: string | null;
 }
 
 export interface IssueAssetCFAResponse {
   asset: AssetCFA;
+}
+
+export interface IssueAssetIFAResponse {
+  asset: AssetIFA;
 }
 
 export interface IssueAssetNIAResponse {
@@ -567,17 +683,18 @@ export interface IssueAssetUDAResponse {
 }
 
 export interface ListAssetsResponse {
-  nia: AssetNIA[];
-  uda: AssetUDA[];
-  cfa: AssetCFA[];
+  nia: AssetNIA[] | null;
+  uda: AssetUDA[] | null;
+  cfa: AssetCFA[] | null;
+  ifa: AssetIFA[] | null;
 }
 
 export interface Channel {
   channel_id: string;
-  funding_txid: string;
+  funding_txid: string | null;
   peer_pubkey: string;
-  peer_alias?: string;
-  short_channel_id?: number;
+  peer_alias?: string | null;
+  short_channel_id?: number | null;
   status: ChannelStatus;
   ready: boolean;
   capacity_sat: number;
@@ -588,9 +705,9 @@ export interface Channel {
   next_outbound_htlc_minimum_msat: number;
   is_usable: boolean;
   public: boolean;
-  asset_id?: string;
-  asset_local_amount?: number;
-  asset_remote_amount?: number;
+  asset_id?: string | null;
+  asset_local_amount?: number | null;
+  asset_remote_amount?: number | null;
 }
 
 export interface ListChannelsResponse {
@@ -598,9 +715,9 @@ export interface ListChannelsResponse {
 }
 
 export interface Payment {
-  amt_msat: number;
-  asset_amount?: number;
-  asset_id?: string;
+  amt_msat: number | null;
+  asset_amount?: number | null;
+  asset_id?: string | null;
   payment_hash: string;
   inbound: boolean;
   status: HTLCStatus;
@@ -620,6 +737,7 @@ export interface ListPaymentsResponse {
 
 export interface Peer {
   pubkey: string;
+  address?: string;
 }
 
 export interface ListPeersResponse {
@@ -629,14 +747,14 @@ export interface ListPeersResponse {
 export interface Swap {
   qty_from: number;
   qty_to: number;
-  from_asset: string;
-  to_asset: string;
+  from_asset: string | null;
+  to_asset: string | null;
   payment_hash: string;
   status: SwapStatus;
   requested_at: number;
-  initiated_at?: number;
+  initiated_at?: number | null;
   expires_at?: number;
-  completed_at?: number;
+  completed_at?: number | null;
 }
 
 export interface GetSwapResponse {
@@ -654,7 +772,7 @@ export interface Transaction {
   received: number;
   sent: number;
   fee: number;
-  confirmation_time?: BlockTime;
+  confirmation_time?: BlockTime | null;
 }
 
 export interface ListTransactionsResponse {
@@ -674,12 +792,14 @@ export interface Transfer {
   status: TransferStatus;
   amount: number;
   kind: TransferKind;
-  txid?: string;
-  recipient_id: string;
-  receive_utxo?: string;
-  change_utxo?: string;
-  expiration?: number;
+  txid?: string | null;
+  recipient_id?: string | null;
+  receive_utxo?: string | null;
+  change_utxo?: string | null;
+  expiration_timestamp?: number | null;
   transport_endpoints: TransferTransportEndpoint[];
+  requested_assignment?: Assignment | null;
+  assignments?: Assignment[];
 }
 
 export interface ListTransfersResponse {
@@ -687,9 +807,10 @@ export interface ListTransfersResponse {
 }
 
 export interface RgbAllocation {
-  asset_id: string;
+  asset_id: string | null;
   amount: number;
   settled: boolean;
+  assignment?: Assignment;
 }
 
 export interface Utxo {
@@ -713,387 +834,100 @@ export interface ListUnspentsResponse {
 export declare class RgbApiClient {
   constructor(baseUrlOrOptions?: string | RgbApiClientOptions, apiKey?: string);
 
-  // ===== On-chain Methods =====
+  // Module accessors
+  onchain: OnchainMethods;
+  rgb: RgbMethods;
+  lightning: LightningMethods;
+  swaps: SwapMethods;
+  node: NodeMethods;
+  webhook: WebhookMethods;
+}
 
-  /**
-   * Get a Bitcoin address
-   * GET /address
-   */
+// ===== Module Classes =====
+
+export declare class OnchainMethods {
   getAddress(): Promise<AddressResponse>;
-
-  /**
-   * Get the BTC balance
-   * POST /btcbalance
-   */
   getBtcBalance(data?: BtcBalanceRequest): Promise<BtcBalanceResponse>;
-
-  /**
-   * Send BTC
-   * POST /sendbtc
-   */
   sendBtc(data: SendBtcRequest): Promise<SendBtcResponse>;
-
-  /**
-   * Create UTXOs
-   * POST /createutxos
-   */
-  createUtxos(data?: CreateUtxosRequest): Promise<void>;
-
-  /**
-   * Get fee estimation
-   * POST /estimatefee
-   */
+  createUtxos(data?: CreateUtxosRequest): Promise<EmptyResponse>;
   estimateFee(data: EstimateFeeRequest): Promise<EstimateFeeResponse>;
-
-  /**
-   * List transactions
-   * POST /listtransactions
-   */
-  listOnchainTransactions(
-    data?: ListTransactionsRequest
-  ): Promise<ListTransactionsResponse>;
-
-  /**
-   * List unspents
-   * POST /listunspents
-   */
+  listOnchainTransactions(data?: ListTransactionsRequest): Promise<ListTransactionsResponse>;
   listUnspents(data?: ListUnspentsRequest): Promise<ListUnspentsResponse>;
+}
 
-  // ===== Peers Methods =====
-
-  /**
-   * Connect to a peer
-   * POST /connectpeer
-   */
-  connectPeer(data: ConnectPeerRequest): Promise<void>;
-
-  /**
-   * List peers
-   * GET /listpeers
-   */
-  listPeers(): Promise<ListPeersResponse>;
-
-  /**
-   * Disconnect from a peer
-   * POST /disconnectpeer
-   */
-  disconnectPeer(data: DisconnectPeerRequest): Promise<void>;
-
-  // ===== Channels Methods =====
-
-  /**
-   * Open a channel
-   * POST /openchannel
-   */
-  openChannel(data: OpenChannelRequest): Promise<OpenChannelResponse>;
-
-  /**
-   * Close a channel
-   * POST /closechannel
-   */
-  closeChannel(data: CloseChannelRequest): Promise<void>;
-
-  /**
-   * List channels
-   * GET /listchannels
-   */
-  listChannels(): Promise<ListChannelsResponse>;
-
-  /**
-   * Get a channel's ID
-   * POST /getchannelid
-   */
-  getChannelIdByTempId(
-    data: GetChannelIdRequest
-  ): Promise<GetChannelIdResponse>;
-
-  // ===== Invoices Methods =====
-
-  /**
-   * Get a LN invoice
-   * POST /lninvoice
-   */
-  createInvoice(data: LNInvoiceRequest): Promise<LNInvoiceResponse>;
-
-  /**
-   * Create a HODL invoice (invoice with external payment_hash, won't auto-settle)
-   * POST /lninvoice
-   */
-  createHodlInvoice(data: LNHodlInvoiceRequest): Promise<LNInvoiceResponse>;
-
-  /**
-   * Decode a LN invoice
-   * POST /decodelninvoice
-   */
-  decodeLnInvoice(
-    data: DecodeLNInvoiceRequest
-  ): Promise<DecodeLNInvoiceResponse>;
-
-  /**
-   * Get an invoice status
-   * POST /invoicestatus
-   */
-  getInvoiceStatus(data: InvoiceStatusRequest): Promise<InvoiceStatusResponse>;
-
-  // ===== Payments Methods =====
-
-  /**
-   * Send a payment
-   * POST /sendpayment
-   */
-  payInvoice(data: SendPaymentRequest): Promise<SendPaymentResponse>;
-
-  /**
-   * List payments
-   * GET /listpayments
-   */
-  listPayments(): Promise<ListPaymentsResponse>;
-
-  /**
-   * Get a payment
-   * POST /getpayment
-   */
-  getPayment(data: GetPaymentRequest): Promise<GetPaymentResponse>;
-
-  /**
-   * Send to a peer spontaneously
-   * POST /keysend
-   */
-  keysend(data: KeysendRequest): Promise<KeysendResponse>;
-
-  // ===== RGB Methods =====
-
-  /**
-   * Get the balance of an asset
-   * POST /assetbalance
-   */
+export declare class RgbMethods {
   getAssetBalance(data: AssetBalanceRequest): Promise<AssetBalanceResponse>;
-
-  /**
-   * Get the metadata of an asset
-   * POST /assetmetadata
-   */
   getAssetMetadata(data: AssetMetadataRequest): Promise<AssetMetadataResponse>;
-
-  /**
-   * List assets
-   * POST /listassets
-   */
-  listAssets(data?: ListAssetsRequest): Promise<ListAssetsResponse>;
-
-  /**
-   * Convert hex bytes to RGB asset ID
-   * POST /assetidfromhexbytes
-   */
   assetIdFromHexBytes(data: AssetIdFromHexBytesRequest): Promise<AssetIdFromHexBytesResponse>;
-
-  /**
-   * Convert RGB asset ID to hex bytes
-   * POST /assetidtohexbytes
-   */
   assetIdToHexBytes(data: AssetIdToHexBytesRequest): Promise<AssetIdToHexBytesResponse>;
-
-  /**
-   * List transfers
-   * POST /listtransfers
-   */
-  listTransactions(data?: ListTransfersRequest): Promise<ListTransfersResponse>;
-
-  /**
-   * Issue an RGB CFA asset
-   * POST /issueassetcfa
-   */
+  listAssets(data?: ListAssetsRequest): Promise<ListAssetsResponse>;
+  listTransfers(data?: ListTransfersRequest): Promise<ListTransfersResponse>;
   issueAssetCfa(data: IssueAssetCFARequest): Promise<IssueAssetCFAResponse>;
-
-  /**
-   * Issue an RGB NIA asset
-   * POST /issueassetnia
-   */
   issueAssetNia(data: IssueAssetNIARequest): Promise<IssueAssetNIAResponse>;
-
-  /**
-   * Issue an RGB UDA asset
-   * POST /issueassetuda
-   */
   issueAssetUda(data: IssueAssetUDARequest): Promise<IssueAssetUDAResponse>;
-
-  /**
-   * Send assets
-   * POST /sendasset
-   */
+  issueAssetIfa(data: IssueAssetIFARequest): Promise<IssueAssetIFAResponse>;
+  inflate(data: InflateRequest): Promise<InflateResponse>;
   sendAsset(data: SendAssetRequest): Promise<SendAssetResponse>;
-
-  /**
-   * Get an RGB invoice
-   * POST /rgbinvoice
-   */
   createRgbInvoice(data: RgbInvoiceRequest): Promise<RgbInvoiceResponse>;
-
-  /**
-   * Decode an RGB invoice
-   * POST /decodergbinvoice
-   */
-  decodeRgbInvoice(
-    data: DecodeRGBInvoiceRequest
-  ): Promise<DecodeRGBInvoiceResponse>;
-
-  /**
-   * Composite method: Pay an RGB invoice by decoding it and sending the asset
-   * Not a direct API endpoint
-   */
-  payRgbInvoice(data: {
-    invoice: string;
-    fee_rate?: number;
-    skip_sync?: boolean;
-    transport_endpoints?: string[];
-  }): Promise<SendAssetResponse>;
-
-  /**
-   * Fail RGB transfers
-   * POST /failtransfers
-   */
+  decodeRgbInvoice(data: DecodeRGBInvoiceRequest): Promise<DecodeRGBInvoiceResponse>;
+  payRgbInvoice(data: { invoice: string; fee_rate?: number; skip_sync?: boolean; transport_endpoints?: string[] }): Promise<SendAssetResponse>;
   failTransfers(data?: FailTransfersRequest): Promise<FailTransfersResponse>;
-
-  /**
-   * Get an asset media
-   * POST /getassetmedia
-   */
   getAssetMedia(data: GetAssetMediaRequest): Promise<GetAssetMediaResponse>;
-
-  /**
-   * Post an asset media
-   * POST /postassetmedia
-   */
   postAssetMedia(data: PostAssetMediaRequest): Promise<PostAssetMediaResponse>;
+  refreshTransfers(data?: RefreshRequest): Promise<EmptyResponse>;
+  syncRgbWallet(): Promise<EmptyResponse>;
+  subscribeToRgbTransactions(options: { onTransaction: Function; onError?: Function; pollingInterval?: number; maxStoredIds?: number }): string;
+  unsubscribeFromRgbTransactions(subscriptionId: string): boolean;
+}
 
-  /**
-   * Refresh transfers
-   * POST /refreshtransfers
-   */
-  refreshTransfers(data?: RefreshRequest): Promise<void>;
+export declare class LightningMethods {
+  createInvoice(data: LNInvoiceRequest): Promise<LNInvoiceResponse>;
+  createHodlInvoice(data: LNHodlInvoiceRequest): Promise<LNInvoiceResponse>;
+  decodeLnInvoice(data: DecodeLNInvoiceRequest): Promise<DecodeLNInvoiceResponse>;
+  getInvoiceStatus(data: InvoiceStatusRequest): Promise<InvoiceStatusResponse>;
+  payInvoice(data: SendPaymentRequest): Promise<SendPaymentResponse>;
+  listPayments(): Promise<ListPaymentsResponse>;
+  getPayment(data: GetPaymentRequest): Promise<GetPaymentResponse>;
+  keysend(data: KeysendRequest): Promise<KeysendResponse>;
+  connectPeer(data: ConnectPeerRequest): Promise<EmptyResponse>;
+  listPeers(): Promise<ListPeersResponse>;
+  disconnectPeer(data: DisconnectPeerRequest): Promise<EmptyResponse>;
+  openChannel(data: OpenChannelRequest): Promise<OpenChannelResponse>;
+  closeChannel(data: CloseChannelRequest): Promise<EmptyResponse>;
+  listChannels(): Promise<ListChannelsResponse>;
+  getChannelIdByTempId(data: GetChannelIdRequest): Promise<GetChannelIdResponse>;
+  sendOnionMessage(data: SendOnionMessageRequest): Promise<EmptyResponse>;
+  subscribeToPayments(options: { onPayment: Function; onError?: Function; pollingInterval?: number; maxStoredIds?: number }): string;
+  unsubscribeFromPayments(subscriptionId: string): boolean;
+}
 
-  /**
-   * Sync the RGB wallet
-   * POST /sync
-   */
-  syncRgbWallet(): Promise<void>;
-
-  // ===== Swaps Methods =====
-
-  /**
-   * Init a maker swap
-   * POST /makerinit
-   */
+export declare class SwapMethods {
   makerInitSwap(data: MakerInitRequest): Promise<MakerInitResponse>;
-
-  /**
-   * Execute a maker swap
-   * POST /makerexecute
-   */
-  makerExecuteSwap(data: MakerExecuteRequest): Promise<void>;
-
-  /**
-   * Accept a swap
-   * POST /taker
-   */
-  takerAcceptSwap(data: TakerRequest): Promise<void>;
-
-  /**
-   * Get a swap
-   * POST /getswap
-   */
+  makerExecuteSwap(data: MakerExecuteRequest): Promise<EmptyResponse>;
+  takerAcceptSwap(data: TakerRequest): Promise<EmptyResponse>;
   getSwap(data: GetSwapRequest): Promise<GetSwapResponse>;
-
-  /**
-   * List swaps
-   * GET /listswaps
-   */
   listSwaps(): Promise<ListSwapsResponse>;
+}
 
-  // ===== Other/Node Methods =====
-
-  /**
-   * Get node info
-   * GET /nodeinfo
-   */
+export declare class NodeMethods {
   getNodeInfo(): Promise<NodeInfoResponse>;
-
-  /**
-   * Get network info
-   * GET /networkinfo
-   */
+  getNodeState(): Promise<NodeState>;
   getNetworkInfo(): Promise<NetworkInfoResponse>;
-
-  /**
-   * Check an indexer URL
-   * POST /checkindexerurl
-   */
-  checkIndexerUrl(
-    data: CheckIndexerUrlRequest
-  ): Promise<CheckIndexerUrlResponse>;
-
-  /**
-   * Check a proxy endpoint
-   * POST /checkproxyendpoint
-   */
-  checkProxyEndpoint(data: CheckProxyEndpointRequest): Promise<void>;
-
-  /**
-   * Send an onion message
-   * POST /sendonionmessage
-   */
-  sendOnionMessage(data: SendOnionMessageRequest): Promise<void>;
-
-  /**
-   * Sign a message
-   * POST /signmessage
-   */
+  checkIndexerUrl(data: CheckIndexerUrlRequest): Promise<CheckIndexerUrlResponse>;
+  checkProxyEndpoint(data: CheckProxyEndpointRequest): Promise<EmptyResponse>;
   signMessage(data: SignMessageRequest): Promise<SignMessageResponse>;
-
-  /**
-   * Init the node
-   * POST /init
-   */
   initNode(data: InitRequest): Promise<InitResponse>;
+  unlockNode(data: UnlockRequest): Promise<EmptyResponse>;
+  lockNode(): Promise<EmptyResponse>;
+  changePassword(data: ChangePasswordRequest): Promise<EmptyResponse>;
+  backupNode(data: BackupRequest): Promise<EmptyResponse>;
+  restoreNode(data: RestoreRequest): Promise<EmptyResponse>;
+  revokeToken(data: RevokeTokenRequest): Promise<EmptyResponse>;
+  shutdown(): Promise<EmptyResponse>;
+}
 
-  /**
-   * Unlock the node
-   * POST /unlock
-   */
-  unlockNode(data: UnlockRequest): Promise<void>;
-
-  /**
-   * Lock the node
-   * POST /lock
-   */
-  lockNode(): Promise<void>;
-
-  /**
-   * Change the password
-   * POST /changepassword
-   */
-  changePassword(data: ChangePasswordRequest): Promise<void>;
-
-  /**
-   * Backup the node
-   * POST /backup
-   */
-  backupNode(data: BackupRequest): Promise<void>;
-
-  /**
-   * Restore the node
-   * POST /restore
-   */
-  restoreNode(data: RestoreRequest): Promise<void>;
-
-  /**
-   * Shutdown the node
-   * POST /shutdown
-   */
-  shutdownNode(): Promise<void>;
-
-  /**
-   * Custom method: Get node state (endpoint may not exist in OpenAPI)
-   */
-  getNodeState(): Promise<number>;
+export declare class WebhookMethods {
+  listWebhooks(): Promise<WebhookListResponse>;
+  subscribeWebhook(data: WebhookSubscribeRequest): Promise<WebhookSubscribeResponse>;
+  unsubscribeWebhook(data: WebhookUnsubscribeRequest): Promise<EmptyResponse>;
 }

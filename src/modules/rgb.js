@@ -144,36 +144,61 @@ export class RgbMethods {
   }
 
   /**
-   * Send an RGB asset
+   * Send RGB assets (new /sendrgb API)
+   * Accepts either a pre-built recipient_map or a convenience flat format.
+   *
+   * Flat format (single recipient):
    * @param {Object} data - Request data
-   * @param {string} data.asset_id - RGB asset ID
+   * @param {string} data.asset_id - RGB asset ID (rgb: format)
    * @param {number} data.amount - Amount to send
    * @param {string} data.recipient_id - Recipient ID
+   * @param {string[]} [data.transport_endpoints] - Transport endpoints
    * @param {boolean} [data.donation] - Whether the transfer is a donation
    * @param {number} [data.fee_rate] - Fee rate in sat/vB
    * @param {number} [data.min_confirmations] - Minimum confirmations for the UTXO
-   * @param {string[]} [data.transport_endpoints] - Transport endpoints for the recipient
+   * @param {number|null} [data.expiration_timestamp] - Expiration timestamp
    * @param {boolean} [data.skip_sync] - Skip syncing the wallet
+   *
+   * Raw format (multi-recipient):
+   * @param {Object} data.recipient_map - Pre-built recipient_map keyed by asset_id
+   *
    * @returns {Promise<import('../types').SendAssetResponse>} Send asset response
    */
   async sendAsset(data) {
-    return this.client._request("post", "/sendasset", data);
+    const { asset_id, amount, recipient_id, transport_endpoints, recipient_map, donation, fee_rate, min_confirmations, expiration_timestamp, skip_sync } = data;
+    const resolvedMap = recipient_map || {
+      [asset_id]: [{
+        recipient_id,
+        assignment: { type: "Fungible", value: amount },
+        transport_endpoints: transport_endpoints || [],
+      }],
+    };
+    return this.client._request("post", "/sendrgb", {
+      donation: donation || false,
+      fee_rate,
+      min_confirmations: min_confirmations || 1,
+      skip_sync: skip_sync || false,
+      ...(expiration_timestamp != null ? { expiration_timestamp } : {}),
+      recipient_map: resolvedMap,
+    });
   }
 
   /**
    * Create an RGB invoice
    * @param {Object} data - Request data
    * @param {string} data.asset_id - RGB asset ID
-   * @param {number} [data.duration_seconds] - Invoice duration in seconds
+   * @param {number|null} [data.expiration_timestamp] - Unix timestamp for invoice expiration
    * @param {number} data.min_confirmations - Minimum confirmations for the UTXO holding the asset
+   * @param {boolean} [data.witness] - Whether to use witness
    * @returns {Promise<import('../types').RgbInvoiceResponse>} RGB invoice response
    */
   async createRgbInvoice(data) {
     const requestData = {
       asset_id: data.asset_id,
-      duration_seconds: data.duration_seconds,
+      expiration_timestamp: data.expiration_timestamp ?? null,
       min_confirmations: data.min_confirmations,
       witness: data.witness || false,
+      ...(data.assignment != null ? { assignment: data.assignment } : {}),
     };
     return this.client._request("post", "/rgbinvoice", requestData);
   }
@@ -195,21 +220,16 @@ export class RgbMethods {
       invoice: data.invoice,
     });
 
-    // 2. Prepare data for sendAsset
+    // 2. Prepare data for sendAsset (flat format, sendAsset will build recipient_map)
     const sendAssetData = {
       recipient_id: decodedInvoice.recipient_id,
       asset_id: data.asset_id || decodedInvoice.asset_id,
-      assignment: {
-        type: "Fungible" || decodedInvoice?.assignment?.type,
-        value: data.amount || decodedInvoice?.assignment?.value,
-      },
-      fee_rate: data.fee_rate, // Pass through from payRgbInvoice call
-      skip_sync: data.skip_sync, // Pass through
+      amount: data.amount || decodedInvoice?.assignment?.value,
+      fee_rate: data.fee_rate,
+      skip_sync: data.skip_sync,
       donation: data.donation || false,
       min_confirmations: data.min_confirmations || 1,
-      // Use provided transport_endpoints or fall back to those from the invoice if available
-      transport_endpoints:
-        data.transport_endpoints || decodedInvoice.transport_endpoints || [],
+      transport_endpoints: data.transport_endpoints || decodedInvoice.transport_endpoints || [],
     };
 
     // 3. Call sendAsset
@@ -518,5 +538,33 @@ export class RgbMethods {
     this.rgbTransactionSubscriptions.delete(subscriptionId);
 
     return true;
+  }
+
+  /**
+   * Issue an RGB IFA (Inflatable Fungible Asset)
+   * @param {Object} data - Request data
+   * @param {number[]} data.amounts - Initial issuance amounts
+   * @param {number[]} [data.inflation_amounts] - Inflation amounts
+   * @param {string} data.ticker - Asset ticker symbol
+   * @param {string} data.name - Asset name
+   * @param {number} data.precision - Decimal precision
+   * @param {string|null} [data.reject_list_url] - URL for reject list
+   * @returns {Promise<import('../types').IssueAssetIFAResponse>} Issue asset IFA response
+   */
+  async issueAssetIfa(data) {
+    return this.client._request('post', '/issueassetifa', data);
+  }
+
+  /**
+   * Inflate an RGB IFA asset (mint additional supply)
+   * @param {Object} data - Request data
+   * @param {string} data.asset_id - RGB asset ID to inflate
+   * @param {number[]} data.inflation_amounts - Amounts to inflate
+   * @param {number} data.fee_rate - Fee rate in sat/vB
+   * @param {number} data.min_confirmations - Minimum confirmations required
+   * @returns {Promise<{txid: string}>} Transaction ID of the inflation tx
+   */
+  async inflate(data) {
+    return this.client._request('post', '/inflate', data);
   }
 }

@@ -7,6 +7,7 @@ export * from './modules/rgb.js';
 export * from './modules/lightning.js';
 export * from './modules/swaps.js';
 export * from './modules/node.js';
+export * from './modules/webhook.js';
 
 // Export the client as both named and default export
 export { RgbApiClient };

@@ -6,6 +6,7 @@ import { RgbMethods } from './modules/rgb.js';
 import { LightningMethods } from './modules/lightning.js';
 import { SwapMethods } from './modules/swaps.js';
 import { NodeMethods } from './modules/node.js';
+import { WebhookMethods } from './modules/webhook.js';
 
 /**
  * RGB API Client SDK
@@ -51,6 +52,7 @@ export class RgbApiClient {
     this.lightning = new LightningMethods(this);
     this.swaps = new SwapMethods(this);
     this.node = new NodeMethods(this);
+    this.webhook = new WebhookMethods(this);
   }
 
   /**

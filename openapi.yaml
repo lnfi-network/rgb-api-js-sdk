@@ -1,4 +1,4 @@
-openapi: 3.0.3
+openapi: 3.1.0
 info:
   title: RGB Lightning Node
   description: |-
@@ -29,6 +29,8 @@ tags:
     description: APIs to perform asset swaps
   - name: Other
     description: APIs to perform other operations
+  - name: Webhooks
+    description: APIs to manage webhook subscriptions
 paths:
   /address:
     post:
@@ -61,6 +63,44 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/AssetBalanceResponse'
+  /assetidfromhexbytes:
+    post:
+      tags:
+        - RGB
+      summary: Convert hex-encoded bytes to RGB asset ID
+      description: Convert asset ID bytes in hexadecimal format to the corresponding baid64 string form
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AssetIdFromHexBytesRequest'
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AssetIdFromHexBytesResponse'
+  /assetidtohexbytes:
+    post:
+      tags:
+        - RGB
+      summary: Convert RGB asset ID to hex-encoded bytes
+      description: Convert RGB asset ID in baid64 string form to its bytes in hexadecimal format
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AssetIdToHexBytesRequest'
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AssetIdToHexBytesResponse'
   /assetmetadata:
     post:
       tags:
@@ -386,12 +426,32 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/GetSwapResponse'
+  /inflate:
+    post:
+      tags:
+        - RGB
+      summary: Inflate RGB assets
+      description: Inflate RGB assets on-chain
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/InflateRequest'
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InflateResponse'
   /init:
     post:
       tags:
         - Other
       summary: Init the node
-      description: Initialize a new node
+      description: Initialize a new node, optionally providing a mnemonic.
+        If no mnemonic is provided a new one is generated.
+        Note that a mnemonic alone is not sufficient to recover RGB state, which also requires client-side data.
       requestBody:
         content:
           application/json:
@@ -440,6 +500,24 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/IssueAssetCFAResponse'
+  /issueassetifa:
+    post:
+      tags:
+        - RGB
+      summary: Issue an RGB IFA asset
+      description: Issue an RGB IFA asset
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/IssueAssetIFARequest'
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/IssueAssetIFAResponse'
   /issueassetnia:
     post:
       tags:
@@ -711,6 +789,19 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/NodeInfoResponse'
+  /nodestate:
+    get:
+      tags:
+        - Other
+      summary: Get node state
+      description: Get the current state of the RGB Lightning Node
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NodeStateResponse'
   /openchannel:
     post:
       tags:
@@ -784,6 +875,24 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/EmptyResponse'
+  /revoketoken:
+    post:
+      tags:
+        - Other
+      summary: Revoke a token
+      description: Revoke an authentication token
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RevokeTokenRequest'
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EmptyResponse'
   /rgbinvoice:
     post:
       tags:
@@ -802,24 +911,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/RgbInvoiceResponse'
-  /sendasset:
-    post:
-      tags:
-        - RGB
-      summary: Send assets
-      description: Send RGB assets on-chain
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/SendAssetRequest'
-      responses:
-        '200':
-          description: Successful operation
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/SendAssetResponse'
   /sendbtc:
     post:
       tags:
@@ -874,25 +965,30 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/SendPaymentResponse'
-  /shutdown:
+  /sendrgb:
     post:
       tags:
-        - Other
-      summary: Shutdown the node
-      description: Gracefully shutdown the node
+        - RGB
+      summary: Send RGB assets
+      description: Send RGB assets on-chain, supporting batch transfers to multiple recipients and/or multiple assets in a single transaction
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SendRgbRequest'
       responses:
         '200':
           description: Successful operation
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/EmptyResponse'
-  /sync:
+                $ref: '#/components/schemas/SendRgbResponse'
+  /shutdown:
     post:
       tags:
-        - RGB
-      summary: Sync the RGB wallet
-      description: Sync the RGB wallet
+        - Other
+      summary: Shutdown the node
+      description: Gracefully shutdown the node
       responses:
         '200':
           description: Successful operation
@@ -918,6 +1014,19 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/SignMessageResponse'
+  /sync:
+    post:
+      tags:
+        - RGB
+      summary: Sync the RGB wallet
+      description: Sync the RGB wallet
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EmptyResponse'
   /taker:
     post:
       tags:
@@ -954,22 +1063,81 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/EmptyResponse'
+  /webhook/list:
+    get:
+      tags:
+        - Webhooks
+      summary: List webhook subscriptions
+      description: List all webhook subscriptions
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WebhookListResponse'
+  /webhook/subscribe:
+    post:
+      tags:
+        - Webhooks
+      summary: Subscribe to webhook events
+      description: Subscribe to receive webhook notifications for specific events
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/WebhookSubscribeRequest'
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WebhookSubscribeResponse'
+  /webhook/unsubscribe:
+    post:
+      tags:
+        - Webhooks
+      summary: Unsubscribe from webhook events
+      description: Unsubscribe from webhook notifications by subscription ID
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/WebhookUnsubscribeRequest'
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EmptyResponse'
 components:
   schemas:
     AddressResponse:
       type: object
+      required:
+        - address
       properties:
         address:
           type: string
           example: bcrt1qnc5y6j6dmejrkwy93farhvpezk0lf46gk7aecs
     AssetBalanceRequest:
       type: object
+      required:
+        - asset_id
       properties:
         asset_id:
           type: string
-          example: rgb:2dkSTbr-jFhznbPmo-TQafzswCN-av4gTsJjX-ttx6CNou5-M98k8Zd
+          example: rgb:CJkb4YZw-jRiz2sk-~PARPio-wtVYI1c-XAEYCqO-wTfvRZ8
     AssetBalanceResponse:
       type: object
+      required:
+        - settled
+        - future
+        - spendable
+        - offchain_outbound
+        - offchain_inbound
       properties:
         settled:
           type: integer
@@ -986,52 +1154,27 @@ components:
         offchain_inbound:
           type: integer
           example: 0
-    AssetMetadataRequest:
-      type: object
-      properties:
-        asset_id:
-          type: string
-          example: rgb:2dkSTbr-jFhznbPmo-TQafzswCN-av4gTsJjX-ttx6CNou5-M98k8Zd
-    AssetMetadataResponse:
-      type: object
-      properties:
-        asset_iface:
-          $ref: '#/components/schemas/AssetIface'
-        asset_schema:
-          $ref: '#/components/schemas/AssetSchema'
-        issued_supply:
-          type: integer
-          example: 777
-        timestamp:
-          type: integer
-          example: 1691160565
-        name:
-          type: string
-          example: Collectible
-        precision:
-          type: integer
-          example: 0
-        ticker:
-          type: string
-          example: USDT
-        details:
-          type: string
-          example: asset details
-        token:
-          $ref: '#/components/schemas/Token'
     AssetCFA:
       type: object
+      required:
+        - asset_id
+        - name
+        - precision
+        - issued_supply
+        - timestamp
+        - added_at
+        - balance
       properties:
         asset_id:
           type: string
-          example: rgb:2dkSTbr-jFhznbPmo-TQafzswCN-av4gTsJjX-ttx6CNou5-M98k8Zd
-        asset_iface:
-          $ref: '#/components/schemas/AssetIface'
+          example: rgb:CJkb4YZw-jRiz2sk-~PARPio-wtVYI1c-XAEYCqO-wTfvRZ8
         name:
           type: string
           example: Collectible
         details:
-          type: string
+          type:
+            - string
+            - 'null'
           example: asset details
         precision:
           type: integer
@@ -1048,21 +1191,26 @@ components:
         balance:
           $ref: '#/components/schemas/AssetBalanceResponse'
         media:
-          $ref: '#/components/schemas/Media'
-    AssetIface:
-      type: string
-      enum:
-        - RGB20
-        - RGB21
-        - RGB25
-    AssetNIA:
+          oneOf:
+            - $ref: '#/components/schemas/Media'
+            - type: 'null'
+    AssetIFA:
       type: object
+      required:
+        - asset_id
+        - ticker
+        - name
+        - precision
+        - initial_supply
+        - max_supply
+        - known_circulating_supply
+        - timestamp
+        - added_at
+        - balance
       properties:
         asset_id:
           type: string
-          example: rgb:2dkSTbr-jFhznbPmo-TQafzswCN-av4gTsJjX-ttx6CNou5-M98k8Zd
-        asset_iface:
-          $ref: '#/components/schemas/AssetIface'
+          example: rgb:CJkb4YZw-jRiz2sk-~PARPio-wtVYI1c-XAEYCqO-wTfvRZ8
         ticker:
           type: string
           example: USDT
@@ -1070,7 +1218,141 @@ components:
           type: string
           example: Tether
         details:
+          type:
+            - string
+            - 'null'
+          example: asset details
+        precision:
+          type: integer
+          example: 0
+        initial_supply:
+          type: integer
+          example: 777
+        max_supply:
+          type: integer
+          example: 999
+        known_circulating_supply:
+          type: integer
+          example: 888
+        timestamp:
+          type: integer
+          example: 1691160565
+        added_at:
+          type: integer
+          example: 1691161979
+        balance:
+          $ref: '#/components/schemas/AssetBalanceResponse'
+        media:
+          oneOf:
+            - $ref: '#/components/schemas/Media'
+            - type: 'null'
+        reject_list_url:
+          type:
+            - string
+            - 'null'
+          example: https://some.domain/someasset/rejectlist
+    AssetIdFromHexBytesRequest:
+      type: object
+      properties:
+        hex_bytes:
           type: string
+          example: 08991be186708d18b3dac93f3c044f8a8c2d558235717004602a8ec137ef459f
+    AssetIdFromHexBytesResponse:
+      type: object
+      properties:
+        asset_id:
+          type: string
+          example: rgb:CJkb4YZw-jRiz2sk-~PARPio-wtVYI1c-XAEYCqO-wTfvRZ8
+    AssetIdToHexBytesRequest:
+      type: object
+      properties:
+        asset_id:
+          type: string
+          example: rgb:CJkb4YZw-jRiz2sk-~PARPio-wtVYI1c-XAEYCqO-wTfvRZ8
+    AssetIdToHexBytesResponse:
+      type: object
+      properties:
+        hex_bytes:
+          type: string
+          example: 08991be186708d18b3dac93f3c044f8a8c2d558235717004602a8ec137ef459f
+    AssetMetadataRequest:
+      type: object
+      required:
+        - asset_id
+      properties:
+        asset_id:
+          type: string
+          example: rgb:CJkb4YZw-jRiz2sk-~PARPio-wtVYI1c-XAEYCqO-wTfvRZ8
+    AssetMetadataResponse:
+      type: object
+      required:
+        - asset_schema
+        - initial_supply
+        - max_supply
+        - known_circulating_supply
+        - timestamp
+        - name
+        - precision
+      properties:
+        asset_schema:
+          $ref: '#/components/schemas/AssetSchema'
+        initial_supply:
+          type: integer
+          example: 777
+        max_supply:
+          type: integer
+          example: 777
+        known_circulating_supply:
+          type: integer
+          example: 777
+        timestamp:
+          type: integer
+          example: 1691160565
+        name:
+          type: string
+          example: Collectible
+        precision:
+          type: integer
+          example: 0
+        ticker:
+          type:
+            - string
+            - 'null'
+          example: USDT
+        details:
+          type:
+            - string
+            - 'null'
+          example: asset details
+        token:
+          oneOf:
+            - $ref: '#/components/schemas/Token'
+            - type: 'null'
+    AssetNIA:
+      type: object
+      required:
+        - asset_id
+        - ticker
+        - name
+        - precision
+        - issued_supply
+        - timestamp
+        - added_at
+        - balance
+      properties:
+        asset_id:
+          type: string
+          example: rgb:CJkb4YZw-jRiz2sk-~PARPio-wtVYI1c-XAEYCqO-wTfvRZ8
+        ticker:
+          type: string
+          example: USDT
+        name:
+          type: string
+          example: Tether
+        details:
+          type:
+            - string
+            - 'null'
           example: asset details
         precision:
           type: integer
@@ -1087,21 +1369,30 @@ components:
         balance:
           $ref: '#/components/schemas/AssetBalanceResponse'
         media:
-          $ref: '#/components/schemas/Media'
+          oneOf:
+            - $ref: '#/components/schemas/Media'
+            - type: 'null'
     AssetSchema:
       type: string
       enum:
         - Nia
         - Uda
         - Cfa
+        - Ifa
     AssetUDA:
       type: object
+      required:
+        - asset_id
+        - ticker
+        - name
+        - precision
+        - timestamp
+        - added_at
+        - balance
       properties:
         asset_id:
           type: string
-          example: rgb:2dkSTbr-jFhznbPmo-TQafzswCN-av4gTsJjX-ttx6CNou5-M98k8Zd
-        asset_iface:
-          $ref: '#/components/schemas/AssetIface'
+          example: rgb:CJkb4YZw-jRiz2sk-~PARPio-wtVYI1c-XAEYCqO-wTfvRZ8
         ticker:
           type: string
           example: UNI
@@ -1109,14 +1400,13 @@ components:
           type: string
           example: Unique
         details:
-          type: string
+          type:
+            - string
+            - 'null'
           example: asset details
         precision:
           type: integer
           example: 0
-        issued_supply:
-          type: integer
-          example: 777
         timestamp:
           type: integer
           example: 1691160565
@@ -1126,9 +1416,70 @@ components:
         balance:
           $ref: '#/components/schemas/AssetBalanceResponse'
         token:
-          $ref: '#/components/schemas/TokenLight'
+          oneOf:
+            - $ref: '#/components/schemas/TokenLight'
+            - type: 'null'
+    Assignment:
+      oneOf:
+        - $ref: '#/components/schemas/AssignmentFungible'
+        - $ref: '#/components/schemas/AssignmentNonFungible'
+        - $ref: '#/components/schemas/AssignmentInflationRight'
+        - $ref: '#/components/schemas/AssignmentAny'
+      discriminator:
+        propertyName: type
+        mapping:
+          Fungible: '#/components/schemas/AssignmentFungible'
+          NonFungible: '#/components/schemas/AssignmentNonFungible'
+          InflationRight: '#/components/schemas/AssignmentInflationRight'
+          Any: '#/components/schemas/AssignmentAny'
+    AssignmentAny:
+      type: object
+      required:
+        - type
+      properties:
+        type:
+          type: string
+          enum: [Any]
+    AssignmentFungible:
+      type: object
+      required:
+        - type
+        - value
+      properties:
+        type:
+          type: string
+          enum: [Fungible]
+        value:
+          type: integer
+          example: 42
+      example:
+        type: Fungible
+        value: 42
+    AssignmentInflationRight:
+      type: object
+      required:
+        - type
+        - value
+      properties:
+        type:
+          type: string
+          enum: [InflationRight]
+        value:
+          type: integer
+          example: 200
+    AssignmentNonFungible:
+      type: object
+      required:
+        - type
+      properties:
+        type:
+          type: string
+          enum: [NonFungible]
     BackupRequest:
       type: object
+      required:
+        - backup_path
+        - password
       properties:
         backup_path:
           type: string
@@ -1142,10 +1493,14 @@ components:
       enum:
         - Mainnet
         - Testnet
+        - Testnet4
         - Signet
         - Regtest
     BlockTime:
       type: object
+      required:
+        - height
+        - timestamp
       properties:
         height:
           type: integer
@@ -1155,6 +1510,10 @@ components:
           example: 1691160659
     BtcBalance:
       type: object
+      required:
+        - settled
+        - future
+        - spendable
       properties:
         settled:
           type: integer
@@ -1167,12 +1526,17 @@ components:
           example: 777000
     BtcBalanceRequest:
       type: object
+      required:
+        - skip_sync
       properties:
         skip_sync:
           type: boolean
           example: false
     BtcBalanceResponse:
       type: object
+      required:
+        - vanilla
+        - colored
       properties:
         vanilla:
           $ref: '#/components/schemas/BtcBalance'
@@ -1180,6 +1544,9 @@ components:
           $ref: '#/components/schemas/BtcBalance'
     ChangePasswordRequest:
       type: object
+      required:
+        - old_password
+        - new_password
       properties:
         old_password:
           type: string
@@ -1189,21 +1556,40 @@ components:
           example: nodenewpassword
     Channel:
       type: object
+      required:
+        - channel_id
+        - peer_pubkey
+        - status
+        - ready
+        - capacity_sat
+        - local_balance_sat
+        - outbound_balance_msat
+        - inbound_balance_msat
+        - next_outbound_htlc_limit_msat
+        - next_outbound_htlc_minimum_msat
+        - is_usable
+        - public
       properties:
         channel_id:
           type: string
           example: 8129afe1b1d7cf60d5e1bf4c04b09bec925ed4df5417ceee0484e24f816a105a
         funding_txid:
-          type: string
+          type:
+            - string
+            - 'null'
           example: 5a106a814fe28404eece1754dfd45e92ec9bb0044cbfe1d560cfd7b1e1af2981
         peer_pubkey:
           type: string
           example: 03b79a4bc1ec365524b4fab9a39eb133753646babb5a1da5c4bc94c53110b7795d
         peer_alias:
-          type: string
+          type:
+            - string
+            - 'null'
           example: null
         short_channel_id:
-          type: integer
+          type:
+            - integer
+            - 'null'
           example: 120946279120896
         status:
           $ref: '#/components/schemas/ChannelStatus'
@@ -1235,13 +1621,19 @@ components:
           type: boolean
           example: true
         asset_id:
-          type: string
-          example: rgb:2dkSTbr-jFhznbPmo-TQafzswCN-av4gTsJjX-ttx6CNou5-M98k8Zd
+          type:
+            - string
+            - 'null'
+          example: rgb:CJkb4YZw-jRiz2sk-~PARPio-wtVYI1c-XAEYCqO-wTfvRZ8
         asset_local_amount:
-          type: integer
+          type:
+            - integer
+            - 'null'
           example: 777
         asset_remote_amount:
-          type: integer
+          type:
+            - integer
+            - 'null'
           example: 0
     ChannelStatus:
       type: string
@@ -1251,23 +1643,33 @@ components:
         - Closing
     CheckIndexerUrlRequest:
       type: object
+      required:
+        - indexer_url
       properties:
         indexer_url:
           type: string
           example: 127.0.0.1:50001
     CheckIndexerUrlResponse:
       type: object
+      required:
+        - indexer_protocol
       properties:
         indexer_protocol:
           $ref: '#/components/schemas/IndexerProtocol'
     CheckProxyEndpointRequest:
       type: object
+      required:
+        - proxy_endpoint
       properties:
-        proxy_url:
+        proxy_endpoint:
           type: string
           example: rpc://127.0.0.1:3000/json-rpc
     CloseChannelRequest:
       type: object
+      required:
+        - channel_id
+        - peer_pubkey
+        - force
       properties:
         channel_id:
           type: string
@@ -1280,39 +1682,59 @@ components:
           example: false
     ConnectPeerRequest:
       type: object
+      required:
+        - peer_pubkey_and_addr
       properties:
         peer_pubkey_and_addr:
           type: string
           example: 03b79a4bc1ec365524b4fab9a39eb133753646babb5a1da5c4bc94c53110b7795d@localhost:9736
     CreateUtxosRequest:
       type: object
+      required:
+        - up_to
+        - fee_rate
+        - skip_sync
       properties:
         up_to:
           type: boolean
           example: false
         num:
-          type: integer
+          type:
+            - integer
+            - 'null'
           example: 4
         size:
-          type: integer
+          type:
+            - integer
+            - 'null'
           example: 32500
         fee_rate:
-          type: number
+          type: integer
           example: 5
         skip_sync:
           type: boolean
           example: false
     DecodeLNInvoiceRequest:
       type: object
+      required:
+        - invoice
       properties:
         invoice:
           type: string
           example: lnbcrt30u1pjv6yzndqud3jxktt5w46x7unfv9kz6mn0v3jsnp4qdpc280eur52luxppv6f3nnj8l6vnd9g2hnv3qv6mjhmhvlzf6327pp5tjjasx6g9dqptea3fhm6yllq5wxzycnnvp8l6wcq3d6j2uvpryuqsp5l8az8x3g8fe05dg7cmgddld3da09nfjvky8xftwsk4cj8p2l7kfq9qyysgqcqpcxqzdylzlwfnkyw3jv344x4rzwgkk53ng0fhxy5rdduk4g5tpvea8xa6rfckkza35va28xjn2tqkhgarcxep5umm4x5k56wfcdvu95eq7qzp20vrl4xz76syapsa3c09j7lg5gerkaj63llj0ark7ph8hfketn6fkqzm8laf66dhsncm23wkwm5l5377we9e8lnlknnkwje5eefkccusqm6rqt8
     DecodeLNInvoiceResponse:
       type: object
+      required:
+        - expiry_sec
+        - timestamp
+        - payment_hash
+        - payment_secret
+        - network
       properties:
         amt_msat:
-          type: integer
+          type:
+            - integer
+            - 'null'
           example: 3000000
         expiry_sec:
           type: integer
@@ -1321,10 +1743,14 @@ components:
           type: integer
           example: 1691160659
         asset_id:
-          type: string
-          example: rgb:2dkSTbr-jFhznbPmo-TQafzswCN-av4gTsJjX-ttx6CNou5-M98k8Zd
+          type:
+            - string
+            - 'null'
+          example: rgb:CJkb4YZw-jRiz2sk-~PARPio-wtVYI1c-XAEYCqO-wTfvRZ8
         asset_amount:
-          type: integer
+          type:
+            - integer
+            - 'null'
           example: 42
         payment_hash:
           type: string
@@ -1333,34 +1759,51 @@ components:
           type: string
           example: f9fa239a283a72fa351ec6d0d6fdb16f5e59a64cb10e64add0b57123855ff592
         payee_pubkey:
-          type: string
+          type:
+            - string
+            - 'null'
           example: 0343851df9e0e8aff0c10b3498ce723ff4c9b4a855e6c8819adcafbbb3e24ea2af
         network:
           $ref: '#/components/schemas/BitcoinNetwork'
     DecodeRGBInvoiceRequest:
       type: object
+      required:
+        - invoice
       properties:
         invoice:
           type: string
-          example: rgb:2eVw8uw-8G88LQ2tQ-kexM12SoD-nCX8DmQrw-yLMu6JDfK-xx1SCfc/RGB20/69+utxob:2PoDFyk-8aegNHZE4-inHHn4nWz-rNtAX3MWv-sTiVPQYrF-ed2bXM?expiry=1698325849&endpoints=rpcs://proxy.iriswallet.com/0.2/json-rpc
+          example: rgb:icfqnK9y-wObZKTu-XJcDL98-sKbE5Mh-OuDJhiI-brRJrzE/RWhwUfTMpuP2Zfx1~j4nswCANGeJrYOqDcKelaMV4zU/~/bcrt:utxob:cbgHUJ4e-7QyKY4U-Jsj5AZw-oI0gxZh-7fxQY2_-tFFUAZN-4CgpX?expiry=1749906951&endpoints=rpcs://proxy.iriswallet.com/0.2/json-rpc
     DecodeRGBInvoiceResponse:
       type: object
+      required:
+        - recipient_id
+        - recipient_type
+        - assignment
+        - network
+        - transport_endpoints
       properties:
         recipient_id:
           type: string
-          example: utxob:2PoDFyk-8aegNHZE4-inHHn4nWz-rNtAX3MWv-sTiVPQYrF-ed2bXM
-        asset_iface:
-          $ref: '#/components/schemas/AssetIface'
+          example: bcrt:utxob:cbgHUJ4e-7QyKY4U-Jsj5AZw-oI0gxZh-7fxQY2_-tFFUAZN-4CgpX
+        recipient_type:
+          $ref: '#/components/schemas/RecipientType'
+        asset_schema:
+          oneOf:
+            - $ref: '#/components/schemas/AssetSchema'
+            - type: 'null'
         asset_id:
-          type: string
-          example: rgb:2eVw8uw-8G88LQ2tQ-kexM12SoD-nCX8DmQrw-yLMu6JDfK-xx1SCfc
-        amount:
-          type: integer
-          example: 69
+          type:
+            - string
+            - 'null'
+          example: rgb:icfqnK9y-wObZKTu-XJcDL98-sKbE5Mh-OuDJhiI-brRJrzE
+        assignment:
+          $ref: '#/components/schemas/Assignment'
         network:
           $ref: '#/components/schemas/BitcoinNetwork'
         expiration_timestamp:
-          type: integer
+          type:
+            - integer
+            - 'null'
           example: 1698325849
         transport_endpoints:
           type: array
@@ -1369,12 +1812,17 @@ components:
             example: rpcs://proxy.iriswallet.com/0.2/json-rpc
     DisconnectPeerRequest:
       type: object
+      required:
+        - peer_pubkey
       properties:
         peer_pubkey:
           type: string
           example: 03b79a4bc1ec365524b4fab9a39eb133753646babb5a1da5c4bc94c53110b7795d
     EmbeddedMedia:
       type: object
+      required:
+        - mime
+        - data
       properties:
         mime:
           type: string
@@ -1388,21 +1836,30 @@ components:
       type: object
     EstimateFeeRequest:
       type: object
+      required:
+        - blocks
       properties:
         blocks:
           type: integer
           example: 7
     EstimateFeeResponse:
       type: object
+      required:
+        - fee_rate
       properties:
         fee_rate:
           type: number
           example: 9.3
     FailTransfersRequest:
       type: object
+      required:
+        - no_asset_only
+        - skip_sync
       properties:
         batch_transfer_idx:
-          type: integer
+          type:
+            - integer
+            - 'null'
           example: null
         no_asset_only:
           type: boolean
@@ -1412,47 +1869,64 @@ components:
           example: false
     FailTransfersResponse:
       type: object
+      required:
+        - transfers_changed
       properties:
         transfers_changed:
           type: boolean
           example: true
     GetAssetMediaRequest:
       type: object
+      required:
+        - digest
       properties:
         digest:
           type: string
           example: 5891b5b522d5df086d0ff0b110fbd9d21bb4fc7163af34d08286a2e846f6be03
     GetAssetMediaResponse:
       type: object
+      required:
+        - bytes_hex
       properties:
         bytes_hex:
           type: string
           example: 68656c6c6f0a
     GetChannelIdRequest:
       type: object
+      required:
+        - temporary_channel_id
       properties:
         temporary_channel_id:
           type: string
           example: a8b60c8ce3067b5fc881d4831323e24751daec3b64353c8df3205ec5d838f1c5
     GetChannelIdResponse:
       type: object
+      required:
+        - channel_id
       properties:
         channel_id:
           type: string
           example: 8129afe1b1d7cf60d5e1bf4c04b09bec925ed4df5417ceee0484e24f816a105a
     GetPaymentRequest:
       type: object
+      required:
+        - payment_hash
       properties:
         payment_hash:
           type: string
           example: 5ca5d81b482b4015e7b14df7a27fe0a38c226273604ffd3b008b752571811938
     GetPaymentResponse:
       type: object
+      required:
+        - payment
       properties:
         payment:
           $ref: '#/components/schemas/Payment'
     GetSwapRequest:
       type: object
+      required:
+        - payment_hash
+        - taker
       properties:
         payment_hash:
           type: string
@@ -1462,6 +1936,8 @@ components:
           example: false
     GetSwapResponse:
       type: object
+      required:
+        - swap
       properties:
         swap:
           $ref: '#/components/schemas/Swap'
@@ -1476,14 +1952,54 @@ components:
       enum:
         - Electrum
         - Esplora
+    InflateRequest:
+      type: object
+      required:
+        - asset_id
+        - inflation_amounts
+        - fee_rate
+        - min_confirmations
+      properties:
+        asset_id:
+          type: string
+          example: rgb:CJkb4YZw-jRiz2sk-~PARPio-wtVYI1c-XAEYCqO-wTfvRZ8
+        inflation_amounts:
+          type: array
+          items:
+            type: integer
+          minItems: 1
+          example: [ 100, 50 ]
+        fee_rate:
+          type: integer
+          example: 5
+        min_confirmations:
+          type: integer
+          example: 1
+    InflateResponse:
+      type: object
+      required:
+        - txid
+      properties:
+        txid:
+          type: string
+          example: 7c2c95b9c2aa0a7d140495b664de7973b76561de833f0dd84def3efa08941664
     InitRequest:
       type: object
+      required:
+        - password
       properties:
         password:
           type: string
           example: nodepassword
+        mnemonic:
+          type:
+            - string
+            - 'null'
+          example: skill lamp please gown put season degree collect decline account monitor insane
     InitResponse:
       type: object
+      required:
+        - mnemonic
       properties:
         mnemonic:
           type: string
@@ -1497,17 +2013,25 @@ components:
         - Expired
     InvoiceStatusRequest:
       type: object
+      required:
+        - invoice
       properties:
         invoice:
           type: string
           example: lnbcrt30u1pjv6yzndqud3jxktt5w46x7unfv9kz6mn0v3jsnp4qdpc280eur52luxppv6f3nnj8l6vnd9g2hnv3qv6mjhmhvlzf6327pp5tjjasx6g9dqptea3fhm6yllq5wxzycnnvp8l6wcq3d6j2uvpryuqsp5l8az8x3g8fe05dg7cmgddld3da09nfjvky8xftwsk4cj8p2l7kfq9qyysgqcqpcxqzdylzlwfnkyw3jv344x4rzwgkk53ng0fhxy5rdduk4g5tpvea8xa6rfckkza35va28xjn2tqkhgarcxep5umm4x5k56wfcdvu95eq7qzp20vrl4xz76syapsa3c09j7lg5gerkaj63llj0ark7ph8hfketn6fkqzm8laf66dhsncm23wkwm5l5377we9e8lnlknnkwje5eefkccusqm6rqt8
     InvoiceStatusResponse:
       type: object
+      required:
+        - status
       properties:
         status:
           $ref: '#/components/schemas/InvoiceStatus'
     IssueAssetCFARequest:
       type: object
+      required:
+        - amounts
+        - name
+        - precision
       properties:
         amounts:
           type: array
@@ -1518,21 +2042,73 @@ components:
           type: string
           example: Tether
         details:
-          type: string
+          type:
+            - string
+            - 'null'
           example: asset details
         precision:
           type: integer
           example: 0
         file_digest:
-          type: string
+          type:
+            - string
+            - 'null'
           example: 5891b5b522d5df086d0ff0b110fbd9d21bb4fc7163af34d08286a2e846f6be03
     IssueAssetCFAResponse:
       type: object
+      required:
+        - asset
       properties:
         asset:
           $ref: '#/components/schemas/AssetCFA'
+    IssueAssetIFARequest:
+      type: object
+      required:
+        - amounts
+        - inflation_amounts
+        - ticker
+        - name
+        - precision
+      properties:
+        amounts:
+          type: array
+          items:
+            type: integer
+          minItems: 1
+          example: [ 1000, 600 ]
+        inflation_amounts:
+          type: array
+          items:
+            type: integer
+          example: [ 100, 50 ]
+        ticker:
+          type: string
+          example: USDT
+        name:
+          type: string
+          example: Tether
+        precision:
+          type: integer
+          example: 0
+        reject_list_url:
+          type:
+            - string
+            - 'null'
+          example: https://some.domain/someasset/rejectlist
+    IssueAssetIFAResponse:
+      type: object
+      required:
+        - asset
+      properties:
+        asset:
+          $ref: '#/components/schemas/AssetIFA'
     IssueAssetNIARequest:
       type: object
+      required:
+        - amounts
+        - ticker
+        - name
+        - precision
       properties:
         amounts:
           type: array
@@ -1550,11 +2126,18 @@ components:
           example: 0
     IssueAssetNIAResponse:
       type: object
+      required:
+        - asset
       properties:
         asset:
           $ref: '#/components/schemas/AssetNIA'
     IssueAssetUDARequest:
       type: object
+      required:
+        - ticker
+        - name
+        - precision
+        - attachments_file_digests
       properties:
         ticker:
           type: string
@@ -1563,13 +2146,17 @@ components:
           type: string
           example: Unique
         details:
-          type: string
+          type:
+            - string
+            - 'null'
           example: asset details
         precision:
           type: integer
           example: 0
         media_file_digest:
-          type: string
+          type:
+            - string
+            - 'null'
           example: /path/to/media
         attachments_file_digests:
           type: array
@@ -1578,11 +2165,16 @@ components:
           example: [ 5891b5b522d5df086d0ff0b110fbd9d21bb4fc7163af34d08286a2e846f6be03, d7516e3a27cdf35aa9dcb323b5f556344ef7f57570be30b88de2bfd4ba339b1a ]
     IssueAssetUDAResponse:
       type: object
+      required:
+        - asset
       properties:
         asset:
           $ref: '#/components/schemas/AssetUDA'
     KeysendRequest:
       type: object
+      required:
+        - dest_pubkey
+        - amt_msat
       properties:
         dest_pubkey:
           type: string
@@ -1591,13 +2183,21 @@ components:
           type: integer
           example: 3000000
         asset_id:
-          type: string
-          example: rgb:2dkSTbr-jFhznbPmo-TQafzswCN-av4gTsJjX-ttx6CNou5-M98k8Zd
+          type:
+            - string
+            - 'null'
+          example: rgb:CJkb4YZw-jRiz2sk-~PARPio-wtVYI1c-XAEYCqO-wTfvRZ8
         asset_amount:
-          type: integer
+          type:
+            - integer
+            - 'null'
           example: 42
     KeysendResponse:
       type: object
+      required:
+        - payment_hash
+        - payment_preimage
+        - status
       properties:
         payment_hash:
           type: string
@@ -1609,29 +2209,50 @@ components:
           $ref: '#/components/schemas/HTLCStatus'
     ListAssetsRequest:
       type: object
+      required:
+        - filter_asset_schemas
       properties:
         filter_asset_schemas:
           type: array
           items:
             $ref: '#/components/schemas/AssetSchema'
-          example: [ Nia, Uda, Cfa ]
+          example: [ Nia, Uda, Cfa, Ifa ]
     ListAssetsResponse:
       type: object
+      required:
+        - nia
+        - uda
+        - cfa
+        - ifa
       properties:
         nia:
-          type: array
+          type:
+            - array
+            - 'null'
           items:
             $ref: '#/components/schemas/AssetNIA'
         uda:
-          type: array
+          type:
+            - array
+            - 'null'
           items:
             $ref: '#/components/schemas/AssetUDA'
         cfa:
-          type: array
+          type:
+            - array
+            - 'null'
           items:
             $ref: '#/components/schemas/AssetCFA'
+        ifa:
+          type:
+            - array
+            - 'null'
+          items:
+            $ref: '#/components/schemas/AssetIFA'
     ListChannelsResponse:
       type: object
+      required:
+        - channels
       properties:
         channels:
           type: array
@@ -1639,6 +2260,8 @@ components:
             $ref: '#/components/schemas/Channel'
     ListPaymentsResponse:
       type: object
+      required:
+        - payments
       properties:
         payments:
           type: array
@@ -1646,6 +2269,8 @@ components:
             $ref: '#/components/schemas/Payment'
     ListPeersResponse:
       type: object
+      required:
+        - peers
       properties:
         peers:
           type: array
@@ -1653,6 +2278,9 @@ components:
             $ref: '#/components/schemas/Peer'
     ListSwapsResponse:
       type: object
+      required:
+        - maker
+        - taker
       properties:
         maker:
           type: array
@@ -1664,12 +2292,16 @@ components:
             $ref: '#/components/schemas/Swap'
     ListTransactionsRequest:
       type: object
+      required:
+        - skip_sync
       properties:
         skip_sync:
           type: boolean
           example: false
     ListTransactionsResponse:
       type: object
+      required:
+        - transactions
       properties:
         transactions:
           type: array
@@ -1677,12 +2309,16 @@ components:
             $ref: '#/components/schemas/Transaction'
     ListTransfersRequest:
       type: object
+      required:
+        - asset_id
       properties:
         asset_id:
           type: string
-          example: rgb:2dkSTbr-jFhznbPmo-TQafzswCN-av4gTsJjX-ttx6CNou5-M98k8Zd
+          example: rgb:CJkb4YZw-jRiz2sk-~PARPio-wtVYI1c-XAEYCqO-wTfvRZ8
     ListTransfersResponse:
       type: object
+      required:
+        - transfers
       properties:
         transfers:
           type: array
@@ -1690,12 +2326,16 @@ components:
             $ref: '#/components/schemas/Transfer'
     ListUnspentsRequest:
       type: object
+      required:
+        - skip_sync
       properties:
         skip_sync:
           type: boolean
           example: false
     ListUnspentsResponse:
       type: object
+      required:
+        - unspents
       properties:
         unspents:
           type: array
@@ -1703,39 +2343,69 @@ components:
             $ref: '#/components/schemas/Unspent'
     LNInvoiceRequest:
       type: object
+      required:
+        - expiry_sec
       properties:
         amt_msat:
-          type: integer
+          type:
+            - integer
+            - 'null'
           example: 3000000
         expiry_sec:
           type: integer
           example: 420
         asset_id:
-          type: string
-          example: rgb:2dkSTbr-jFhznbPmo-TQafzswCN-av4gTsJjX-ttx6CNou5-M98k8Zd
+          type:
+            - string
+            - 'null'
+          example: rgb:CJkb4YZw-jRiz2sk-~PARPio-wtVYI1c-XAEYCqO-wTfvRZ8
         asset_amount:
-          type: integer
+          type:
+            - integer
+            - 'null'
           example: 42
+        preimage:
+          type: string
+          description: Optional custom payment preimage (hex string, 32 bytes). Mutually exclusive with payment_hash.
+          example: "1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef"
+        payment_hash:
+          type: string
+          description: Optional payment hash (hex string, 32 bytes) for HODL invoices. Mutually exclusive with preimage.
+          example: "229a76310b22a588271adcabc93362239c538103ebe2a8dea1822f9cde6c6040"
+        memo:
+          type: string
+          description: Optional memo/description for the invoice
+          example: "Payment for services"
     LNInvoiceResponse:
       type: object
+      required:
+        - invoice
       properties:
         invoice:
           type: string
           example: lnbcrt30u1pjv6yzndqud3jxktt5w46x7unfv9kz6mn0v3jsnp4qdpc280eur52luxppv6f3nnj8l6vnd9g2hnv3qv6mjhmhvlzf6327pp5tjjasx6g9dqptea3fhm6yllq5wxzycnnvp8l6wcq3d6j2uvpryuqsp5l8az8x3g8fe05dg7cmgddld3da09nfjvky8xftwsk4cj8p2l7kfq9qyysgqcqpcxqzdylzlwfnkyw3jv344x4rzwgkk53ng0fhxy5rdduk4g5tpvea8xa6rfckkza35va28xjn2tqkhgarcxep5umm4x5k56wfcdvu95eq7qzp20vrl4xz76syapsa3c09j7lg5gerkaj63llj0ark7ph8hfketn6fkqzm8laf66dhsncm23wkwm5l5377we9e8lnlknnkwje5eefkccusqm6rqt8
     MakerExecuteRequest:
       type: object
+      required:
+        - swapstring
+        - payment_secret
+        - taker_pubkey
       properties:
         swapstring:
-            type: string
-            example: 30/rgb:2dkSTbr-jFhznbPmo-TQafzswCN-av4gTsJjX-ttx6CNou5-M98k8Zd/10/rgb:2eVw8uw-8G88LQ2tQ-kexM12SoD-nCX8DmQrw-yLMu6JDfK-xx1SCfc/1715896416/9d342c6ba006e24abee84a2e034a22d5e30c1f2599fb9c3574d46d3cde3d65a2
+          type: string
+          example: 30/rgb:CJkb4YZw-jRiz2sk-~PARPio-wtVYI1c-XAEYCqO-wTfvRZ8/10/rgb:icfqnK9y-wObZKTu-XJcDL98-sKbE5Mh-OuDJhiI-brRJrzE/1715896416/9d342c6ba006e24abee84a2e034a22d5e30c1f2599fb9c3574d46d3cde3d65a2
         payment_secret:
-            type: string
-            example: 777a7756c620868199ed5fdc35bee4095b5709d543e5c2bf0494396bf27d2ea2
+          type: string
+          example: 777a7756c620868199ed5fdc35bee4095b5709d543e5c2bf0494396bf27d2ea2
         taker_pubkey:
           type: string
           example: 02270dadcd6e7ba0ef707dac72acccae1a3607453a8dd2aef36ff3be4e0d31f043
     MakerInitRequest:
       type: object
+      required:
+        - qty_from
+        - qty_to
+        - timeout_sec
       properties:
         qty_from:
           type: integer
@@ -1744,37 +2414,55 @@ components:
           type: integer
           example: 10
         from_asset:
-          type: string
-          example: rgb:2dkSTbr-jFhznbPmo-TQafzswCN-av4gTsJjX-ttx6CNou5-M98k8Zd
+          type:
+            - string
+            - 'null'
+          example: rgb:CJkb4YZw-jRiz2sk-~PARPio-wtVYI1c-XAEYCqO-wTfvRZ8
         to_asset:
-          type: string
-          example: rgb:2eVw8uw-8G88LQ2tQ-kexM12SoD-nCX8DmQrw-yLMu6JDfK-xx1SCfc
+          type:
+            - string
+            - 'null'
+          example: rgb:icfqnK9y-wObZKTu-XJcDL98-sKbE5Mh-OuDJhiI-brRJrzE
         timeout_sec:
           type: integer
           example: 100
     MakerInitResponse:
       type: object
+      required:
+        - payment_hash
+        - payment_secret
+        - swapstring
       properties:
         payment_hash:
-            type: string
-            example: 3febfae1e68b190c15461f4c2a3290f9af1dae63fd7d620d2bd61601869026cd
+          type: string
+          example: 3febfae1e68b190c15461f4c2a3290f9af1dae63fd7d620d2bd61601869026cd
         payment_secret:
-            type: string
-            example: 777a7756c620868199ed5fdc35bee4095b5709d543e5c2bf0494396bf27d2ea2
+          type: string
+          example: 777a7756c620868199ed5fdc35bee4095b5709d543e5c2bf0494396bf27d2ea2
         swapstring:
-            type: string
-            example: 30/rgb:2dkSTbr-jFhznbPmo-TQafzswCN-av4gTsJjX-ttx6CNou5-M98k8Zd/10/rgb:2eVw8uw-8G88LQ2tQ-kexM12SoD-nCX8DmQrw-yLMu6JDfK-xx1SCfc/1715896416/9d342c6ba006e24abee84a2e034a22d5e30c1f2599fb9c3574d46d3cde3d65a2
+          type: string
+          example: 30/rgb:CJkb4YZw-jRiz2sk-~PARPio-wtVYI1c-XAEYCqO-wTfvRZ8/10/rgb:icfqnK9y-wObZKTu-XJcDL98-sKbE5Mh-OuDJhiI-brRJrzE/1715896416/9d342c6ba006e24abee84a2e034a22d5e30c1f2599fb9c3574d46d3cde3d65a2
     Media:
       type: object
+      required:
+        - file_path
+        - digest
+        - mime
       properties:
         file_path:
           type: string
           example: /path/to/media
+        digest:
+          type: string
+          example: 5891b5b522d5df086d0ff0b110fbd9d21bb4fc7163af34d08286a2e846f6be03
         mime:
           type: string
           example: text/plain
     NetworkInfoResponse:
       type: object
+      required:
+        - network
+        - height
       properties:
         network:
           $ref: '#/components/schemas/BitcoinNetwork'
@@ -1783,6 +2471,25 @@ components:
           example: 805434
     NodeInfoResponse:
       type: object
+      required:
+        - pubkey
+        - num_channels
+        - num_usable_channels
+        - local_balance_sat
+        - eventual_close_fees_sat
+        - pending_outbound_payments_sat
+        - num_peers
+        - account_xpub_vanilla
+        - account_xpub_colored
+        - max_media_upload_size_mb
+        - rgb_htlc_min_msat
+        - rgb_channel_capacity_min_sat
+        - channel_capacity_min_sat
+        - channel_capacity_max_sat
+        - channel_asset_min_amount
+        - channel_asset_max_amount
+        - network_nodes
+        - network_channels
       properties:
         pubkey:
           type: string
@@ -1805,9 +2512,12 @@ components:
         num_peers:
           type: integer
           example: 1
-        onchain_pubkey:
+        account_xpub_vanilla:
           type: string
-          example: tpubDDqiQYzNMGsKVVmWYG4FCPPcbd5S4uW9u7a6zUFkgbh16VmFTvsaNyo37mAgkCku6jStBcU8VaLxG2SE7ab2sEwwagjfbS8U9H82BadjKR1
+          example: tpubDDfzqHEET3ksD81qshMHkw35yp6TuLP1kr5rWWeJcLAqDfMXKDJzmDwAnda6DCqw7kkkhPphuDZFE2a6Sw8h5ZA5NwmtTssEnjMqN7xMzSd
+        account_xpub_colored:
+          type: string
+          example: tpubDDcdKhaxwVV2T6xwigti7dSY1a7LHFwZmKAaLWtNhzrvuTXqjjzo8U7YQkUuPah5yHvnk3cbXmb18ZRFwHEKTFUQmA9dij1nPVA2LCJCiEa
         max_media_upload_size_mb:
           type: integer
           example: 5
@@ -1835,8 +2545,33 @@ components:
         network_channels:
           type: integer
           example: 7812821
+    NodeState:
+      type: string
+      enum:
+        - None
+        - Locked
+        - Running
+        - Changing
+      example: Running
+      description: |
+        The current state of the RGB Lightning Node:
+        * `None` - Node is not initialized (no mnemonic file exists)
+        * `Locked` - Node is initialized but locked (needs to be unlocked)
+        * `Running` - Node is unlocked and running (can perform all operations)
+        * `Changing` - Node is in the process of changing state (wait for completion)
+    NodeStateResponse:
+      type: object
+      properties:
+        state:
+          $ref: '#/components/schemas/NodeState'
     OpenChannelRequest:
       type: object
+      required:
+        - peer_pubkey_and_opt_addr
+        - capacity_sat
+        - push_msat
+        - public
+        - with_anchors
       properties:
         peer_pubkey_and_opt_addr:
           type: string
@@ -1848,11 +2583,18 @@ components:
           type: integer
           example: 1394000
         asset_amount:
-          type: integer
+          type:
+            - integer
+            - 'null'
           example: 333
         asset_id:
-          type: string
-          example: rgb:2dkSTbr-jFhznbPmo-TQafzswCN-av4gTsJjX-ttx6CNou5-M98k8Zd
+          type:
+            - string
+            - 'null'
+          example: rgb:CJkb4YZw-jRiz2sk-~PARPio-wtVYI1c-XAEYCqO-wTfvRZ8
+        push_asset_amount:
+          type: integer
+          example: 100
         public:
           type: boolean
           example: true
@@ -1860,32 +2602,53 @@ components:
           type: boolean
           example: true
         fee_base_msat:
-          type: integer
+          type:
+            - integer
+            - 'null'
           example: 1000
         fee_proportional_millionths:
-          type: integer
+          type:
+            - integer
+            - 'null'
           example: 0
         temporary_channel_id:
-          type: string
+          type:
+            - string
+            - 'null'
           example: a8b60c8ce3067b5fc881d4831323e24751daec3b64353c8df3205ec5d838f1c5
     OpenChannelResponse:
       type: object
+      required:
+        - temporary_channel_id
       properties:
         temporary_channel_id:
           type: string
           example: a8b60c8ce3067b5fc881d4831323e24751daec3b64353c8df3205ec5d838f1c5
     Payment:
       type: object
+      required:
+        - payment_hash
+        - inbound
+        - status
+        - created_at
+        - updated_at
+        - payee_pubkey
       properties:
         amt_msat:
-          type: integer
+          type:
+            - integer
+            - 'null'
           example: 3000000
         asset_amount:
-          type: integer
+          type:
+            - integer
+            - 'null'
           example: 42
         asset_id:
-          type: string
-          example: rgb:2dkSTbr-jFhznbPmo-TQafzswCN-av4gTsJjX-ttx6CNou5-M98k8Zd
+          type:
+            - string
+            - 'null'
+          example: rgb:CJkb4YZw-jRiz2sk-~PARPio-wtVYI1c-XAEYCqO-wTfvRZ8
         payment_hash:
           type: string
           example: 3febfae1e68b190c15461f4c2a3290f9af1dae63fd7d620d2bd61601869026cd
@@ -1903,26 +2666,41 @@ components:
         payee_pubkey:
           type: string
           example: 03b79a4bc1ec365524b4fab9a39eb133753646babb5a1da5c4bc94c53110b7795d
+        preimage:
+          type: string
+          example: 89d28bd306aa9bb906fd0ac31092d04c37c919a171b343083167e2a3cdc60578
     Peer:
       type: object
+      required:
+        - pubkey
       properties:
         pubkey:
           type: string
           example: 03b79a4bc1ec365524b4fab9a39eb133753646babb5a1da5c4bc94c53110b7795d
+        address:
+          type: string
+          example: 127.0.0.1:9735
     PostAssetMediaRequest:
       type: object
+      required:
+        - file
       properties:
         file:
           type: string
           format: binary
     PostAssetMediaResponse:
       type: object
+      required:
+        - digest
       properties:
         digest:
           type: string
           example: 5891b5b522d5df086d0ff0b110fbd9d21bb4fc7163af34d08286a2e846f6be03
     ProofOfReserves:
       type: object
+      required:
+        - utxo
+        - proof
       properties:
         utxo:
           type: string
@@ -1932,14 +2710,45 @@ components:
           items:
             type: integer
           example: [6, 36, 87, 13, 5, 17]
+    Recipient:
+      type: object
+      required:
+        - recipient_id
+        - assignment
+        - transport_endpoints
+      properties:
+        recipient_id:
+          type: string
+          example: bcrt:utxob:2FZsSuk-iyVQLVuU4-Gc6J4qkE8-mLS17N4jd-MEx6cWz9F-MFkyE1n
+        witness_data:
+          oneOf:
+            - $ref: '#/components/schemas/WitnessData'
+            - type: 'null'
+        assignment:
+          $ref: '#/components/schemas/Assignment'
+        transport_endpoints:
+          type: array
+          items:
+            type: string
+            example: rpc://127.0.0.1:3000/json-rpc
+    RecipientType:
+      type: string
+      enum:
+        - Blind
+        - Witness
     RefreshRequest:
       type: object
+      required:
+        - skip_sync
       properties:
         skip_sync:
           type: boolean
           example: false
     RestoreRequest:
       type: object
+      required:
+        - backup_path
+        - password
       properties:
         backup_path:
           type: string
@@ -1947,82 +2756,84 @@ components:
         password:
           type: string
           example: nodepassword
+    RevokeTokenRequest:
+      type: object
+      required:
+        - token
+      properties:
+        token:
+          type: string
+          example: EnYKDBgDIggKBggGEgIYDRIkCAASICqCgqtFMIJ1eLCM3raDzqg9UqV-6nJWzGjjJG0S5IIUGkBpF-itmppHcdcSrSCiKklz9VZT4UmIND_0RFc32Imq3bLR_Y7GYaSpJo5lJfU1cA2BG_hy7P1UN4g5jKTKS88GIiIKIAUKXrrx0Ca-rMZa537VOFw2X8q_KVQ6OC4Z0ztro0sQ
     RgbAllocation:
       type: object
+      required:
+        - assignment
+        - settled
       properties:
         asset_id:
-          type: string
-          example: rgb:2dkSTbr-jFhznbPmo-TQafzswCN-av4gTsJjX-ttx6CNou5-M98k8Zd
-        amount:
-          type: integer
-          example: 42
+          type:
+            - string
+            - 'null'
+          example: rgb:CJkb4YZw-jRiz2sk-~PARPio-wtVYI1c-XAEYCqO-wTfvRZ8
+        assignment:
+          $ref: '#/components/schemas/Assignment'
         settled:
           type: boolean
           example: false
     RgbInvoiceRequest:
       type: object
+      required:
+        - min_confirmations
+        - witness
       properties:
         min_confirmations:
           type: integer
           example: 1
         asset_id:
-          type: string
-          example: rgb:2dkSTbr-jFhznbPmo-TQafzswCN-av4gTsJjX-ttx6CNou5-M98k8Zd
-        duration_seconds:
-          type: integer
-          example: 86400
+          type:
+            - string
+            - 'null'
+          example: rgb:CJkb4YZw-jRiz2sk-~PARPio-wtVYI1c-XAEYCqO-wTfvRZ8
+        assignment:
+          oneOf:
+            - $ref: '#/components/schemas/Assignment'
+            - type: 'null'
+        expiration_timestamp:
+          type:
+            - integer
+            - 'null'
+          example: 1695811760
+        witness:
+          type: boolean
+          example: false
     RgbInvoiceResponse:
       type: object
+      required:
+        - recipient_id
+        - invoice
+        - batch_transfer_idx
       properties:
         recipient_id:
           type: string
-          example: utxob:2FZsSuk-iyVQLVuU4-Gc6J4qkE8-mLS17N4jd-MEx6cWz9F-MFkyE1n
+          example: bcrt:utxob:cbgHUJ4e-7QyKY4U-Jsj5AZw-oI0gxZh-7fxQY2_-tFFUAZN-4CgpX
         invoice:
           type: string
-          example: rgb:~/~/utxob:2FZsSuk-iyVQLVuU4-Gc6J4qkE8-mLS17N4jd-MEx6cWz9F-MFkyE1n?expiry=1695811760&endpoints=rpc://127.0.0.1:3000/json-rpc
+          example: rgb:~/~/~/bcrt:utxob:cbgHUJ4e-7QyKY4U-Jsj5AZw-oI0gxZh-7fxQY2_-tFFUAZN-4CgpX?expiry=1695811760&endpoints=rpc://127.0.0.1:3000/json-rpc
         expiration_timestamp:
-          type: integer
+          type:
+            - integer
+            - 'null'
           example: 1695811760
         batch_transfer_idx:
           type: integer
           example: 1
-    SendAssetRequest:
-      type: object
-      properties:
-        asset_id:
-          type: string
-          example: rgb:2dkSTbr-jFhznbPmo-TQafzswCN-av4gTsJjX-ttx6CNou5-M98k8Zd
-        amount:
-          type: integer
-          example: 42
-        recipient_id:
-          type: string
-          example: bcrt:utxob:2FZsSuk-iyVQLVuU4-Gc6J4qkE8-mLS17N4jd-MEx6cWz9F-MFkyE1n
-        donation:
-          type: boolean
-          example: false
-        fee_rate:
-          type: number
-          example: 5
-        min_confirmations:
-          type: integer
-          example: 1
-        transport_endpoints:
-          type: array
-          items:
-            type: string
-            example: rpc://127.0.0.1:3000/json-rpc
-        skip_sync:
-          type: boolean
-          example: false
-    SendAssetResponse:
-      type: object
-      properties:
-        txid:
-          type: string
-          example: 7c2c95b9c2aa0a7d140495b664de7973b76561de833f0dd84def3efa08941664
     SendBtcRequest:
       type: object
+      required:
+        - amount
+        - address
+        - fee_rate
+        - skip_sync
       properties:
         amount:
           type: integer
@@ -2031,19 +2842,25 @@ components:
           type: string
           example: bcrt1qwxht5tut39dws8tjcf649tp908r8fr2j75c94k
         fee_rate:
-          type: number
+          type: integer
           example: 5
         skip_sync:
           type: boolean
           example: false
     SendBtcResponse:
       type: object
+      required:
+        - txid
       properties:
         txid:
           type: string
           example: 7c2c95b9c2aa0a7d140495b664de7973b76561de833f0dd84def3efa08941664
     SendOnionMessageRequest:
       type: object
+      required:
+        - node_ids
+        - tlv_type
+        - data
       properties:
         node_ids:
           type: array
@@ -2058,35 +2875,131 @@ components:
           example: message to send
     SendPaymentRequest:
       type: object
+      required:
+        - invoice
       properties:
         invoice:
           type: string
           example: lnbcrt30u1pjv6yzndqud3jxktt5w46x7unfv9kz6mn0v3jsnp4qdpc280eur52luxppv6f3nnj8l6vnd9g2hnv3qv6mjhmhvlzf6327pp5tjjasx6g9dqptea3fhm6yllq5wxzycnnvp8l6wcq3d6j2uvpryuqsp5l8az8x3g8fe05dg7cmgddld3da09nfjvky8xftwsk4cj8p2l7kfq9qyysgqcqpcxqzdylzlwfnkyw3jv344x4rzwgkk53ng0fhxy5rdduk4g5tpvea8xa6rfckkza35va28xjn2tqkhgarcxep5umm4x5k56wfcdvu95eq7qzp20vrl4xz76syapsa3c09j7lg5gerkaj63llj0ark7ph8hfketn6fkqzm8laf66dhsncm23wkwm5l5377we9e8lnlknnkwje5eefkccusqm6rqt8
+        amt_msat:
+          type:
+            - integer
+            - 'null'
+          example: 3000000
+        asset_id:
+          type:
+            - string
+            - 'null'
+          example: rgb:CJkb4YZw-jRiz2sk-~PARPio-wtVYI1c-XAEYCqO-wTfvRZ8
+        asset_amount:
+          type:
+            - integer
+            - 'null'
+          example: 100
     SendPaymentResponse:
       type: object
+      required:
+        - payment_id
+        - status
       properties:
-        payment_hash:
+        payment_id:
           type: string
           example: 3febfae1e68b190c15461f4c2a3290f9af1dae63fd7d620d2bd61601869026cd
+        payment_hash:
+          type:
+            - string
+            - 'null'
+          example: 3febfae1e68b190c15461f4c2a3290f9af1dae63fd7d620d2bd61601869026cd
         payment_secret:
-          type: string
+          type:
+            - string
+            - 'null'
           example: 777a7756c620868199ed5fdc35bee4095b5709d543e5c2bf0494396bf27d2ea2
         status:
           $ref: '#/components/schemas/HTLCStatus'
+    SendRgbRequest:
+      type: object
+      required:
+        - donation
+        - fee_rate
+        - min_confirmations
+        - recipient_map
+        - skip_sync
+      properties:
+        donation:
+          type: boolean
+          example: false
+        fee_rate:
+          type: integer
+          example: 5
+        min_confirmations:
+          type: integer
+          example: 1
+        expiration_timestamp:
+          type:
+            - integer
+            - 'null'
+          example: 1695811760
+        recipient_map:
+          type: object
+          additionalProperties:
+            type: array
+            items:
+              $ref: '#/components/schemas/Recipient'
+          example:
+            rgb:CJkb4YZw-jRiz2sk-~PARPio-wtVYI1c-XAEYCqO-wTfvRZ8:
+              - recipient_id: "utxob:2FjRqgQ-eEWCVHY5-zmpFtYzT-gGm3MdR-sTnxNcS-7RtUbY9-4NYuuh"
+                assignment:
+                  Fungible: 400
+                transport_endpoints:
+                  - rpc://127.0.0.1:3000/json-rpc
+              - recipient_id: "utxob:3GkRrhR-fFXDLIZ6-0anqGuzU-hHn4NeS-tUoyOdT-8SuVcZ0-5OZvvi"
+                assignment:
+                  Fungible: 200
+                transport_endpoints:
+                  - rpc://127.0.0.1:3000/json-rpc
+            rgb:d8qDVS5X-ICVG2uM-CPr3yO4-lfBhgjt-7FN1EPE-ApY1LcM:
+              - recipient_id: "utxob:4HlSsiS-gGYEMKA7-1borHvaV-iIo5OfT-uVpzPeU-9TvWdA1-6PAwwj"
+                assignment:
+                  Fungible: 100
+                transport_endpoints:
+                  - rpc://127.0.0.1:3000/json-rpc
+        skip_sync:
+          type: boolean
+          example: false
+    SendRgbResponse:
+      type: object
+      required:
+        - txid
+      properties:
+        txid:
+          type: string
+          example: 7c2c95b9c2aa0a7d140495b664de7973b76561de833f0dd84def3efa08941664
     SignMessageRequest:
       type: object
+      required:
+        - message
       properties:
         message:
           type: string
           example: message to sign
     SignMessageResponse:
       type: object
+      required:
+        - signed_message
       properties:
         signed_message:
           type: string
           example: signed message
     Swap:
       type: object
+      required:
+        - qty_from
+        - qty_to
+        - payment_hash
+        - status
+        - requested_at
+        - expires_at
       properties:
         qty_from:
           type: integer
@@ -2095,11 +3008,15 @@ components:
           type: integer
           example: 10
         from_asset:
-          type: string
-          example: rgb:2dkSTbr-jFhznbPmo-TQafzswCN-av4gTsJjX-ttx6CNou5-M98k8Zd
+          type:
+            - string
+            - 'null'
+          example: rgb:CJkb4YZw-jRiz2sk-~PARPio-wtVYI1c-XAEYCqO-wTfvRZ8
         to_asset:
-          type: string
-          example: rgb:2eVw8uw-8G88LQ2tQ-kexM12SoD-nCX8DmQrw-yLMu6JDfK-xx1SCfc
+          type:
+            - string
+            - 'null'
+          example: rgb:icfqnK9y-wObZKTu-XJcDL98-sKbE5Mh-OuDJhiI-brRJrzE
         payment_hash:
           type: string
           example: 7c2c95b9c2aa0a7d140495b664de7973b76561de833f0dd84def3efa08941664
@@ -2109,13 +3026,17 @@ components:
           type: integer
           example: 1691160765
         initiated_at:
-          type: integer
+          type:
+            - integer
+            - 'null'
           example: 1691168512
         expires_at:
           type: integer
           example: 1691172703
         completed_at:
-          type: integer
+          type:
+            - integer
+            - 'null'
           example: 1691171075
     SwapStatus:
       type: string
@@ -2127,29 +3048,44 @@ components:
         - Failed
     TakerRequest:
       type: object
+      required:
+        - swapstring
       properties:
         swapstring:
-            type: string
-            example: 30/rgb:2dkSTbr-jFhznbPmo-TQafzswCN-av4gTsJjX-ttx6CNou5-M98k8Zd/10/rgb:2eVw8uw-8G88LQ2tQ-kexM12SoD-nCX8DmQrw-yLMu6JDfK-xx1SCfc/1715896416/9d342c6ba006e24abee84a2e034a22d5e30c1f2599fb9c3574d46d3cde3d65a2
+          type: string
+          example: 30/rgb:CJkb4YZw-jRiz2sk-~PARPio-wtVYI1c-XAEYCqO-wTfvRZ8/10/rgb:icfqnK9y-wObZKTu-XJcDL98-sKbE5Mh-OuDJhiI-brRJrzE/1715896416/9d342c6ba006e24abee84a2e034a22d5e30c1f2599fb9c3574d46d3cde3d65a2
     Token:
       type: object
+      required:
+        - index
+        - attachments
       properties:
         index:
           type: integer
           example: 0
         ticker:
-          type: string
+          type:
+            - string
+            - 'null'
           example: TKN
         name:
-          type: string
+          type:
+            - string
+            - 'null'
           example: Token
         details:
-          type: string
+          type:
+            - string
+            - 'null'
           example: token details
         embedded_media:
-          $ref: '#/components/schemas/EmbeddedMedia'
+          oneOf:
+            - $ref: '#/components/schemas/EmbeddedMedia'
+            - type: 'null'
         media:
-          $ref: '#/components/schemas/Media'
+          oneOf:
+            - $ref: '#/components/schemas/Media'
+            - type: 'null'
         attachments:
           type: object
           additionalProperties:
@@ -2158,27 +3094,42 @@ components:
             0: { file_path: path/to/attachment0, digest: 5891b5b522d5df086d0ff0b110fbd9d21bb4fc7163af34d08286a2e846f6be03, mime: text/plain }
             1: { file_path: path/to/attachment1, digest: d7516e3a27cdf35aa9dcb323b5f556344ef7f57570be30b88de2bfd4ba339b1a, mime: image/png }
         reserves:
-          $ref: '#/components/schemas/ProofOfReserves'
+          oneOf:
+            - $ref: '#/components/schemas/ProofOfReserves'
+            - type: 'null'
     TokenLight:
       type: object
+      required:
+        - index
+        - embedded_media
+        - attachments
+        - reserves
       properties:
         index:
           type: integer
           example: 0
         ticker:
-          type: string
+          type:
+            - string
+            - 'null'
           example: TKN
         name:
-          type: string
+          type:
+            - string
+            - 'null'
           example: Token
         details:
-          type: string
+          type:
+            - string
+            - 'null'
           example: token details
         embedded_media:
           type: boolean
           example: true
         media:
-          $ref: '#/components/schemas/Media'
+          oneOf:
+            - $ref: '#/components/schemas/Media'
+            - type: 'null'
         attachments:
           type: object
           additionalProperties:
@@ -2191,6 +3142,12 @@ components:
           example: false
     Transaction:
       type: object
+      required:
+        - transaction_type
+        - txid
+        - received
+        - sent
+        - fee
       properties:
         transaction_type:
           $ref: '#/components/schemas/TransactionType'
@@ -2207,7 +3164,9 @@ components:
           type: integer
           example: 100
         confirmation_time:
-          $ref: '#/components/schemas/BlockTime'
+          oneOf:
+            - $ref: '#/components/schemas/BlockTime'
+            - type: 'null'
     TransactionType:
       type: string
       enum:
@@ -2217,6 +3176,14 @@ components:
         - User
     Transfer:
       type: object
+      required:
+        - idx
+        - created_at
+        - updated_at
+        - status
+        - assignments
+        - kind
+        - transport_endpoints
       properties:
         idx:
           type: integer
@@ -2229,25 +3196,40 @@ components:
           example: 1691162674
         status:
           $ref: '#/components/schemas/TransferStatus'
-        amount:
-          type: integer
-          example: 77
+        requested_assignment:
+          oneOf:
+            - $ref: '#/components/schemas/Assignment'
+            - type: 'null'
+        assignments:
+          type: array
+          items:
+            $ref: '#/components/schemas/Assignment'
         kind:
           $ref: '#/components/schemas/TransferKind'
         txid:
-          type: string
+          type:
+            - string
+            - 'null'
           example: 7c2c95b9c2aa0a7d140495b664de7973b76561de833f0dd84def3efa08941664
         recipient_id:
-          type: string
+          type:
+            - string
+            - 'null'
           example: 61qsVbWtkNmU54F2i6qtB9uSmEGsPoaeypCi5uC5uctZ
         receive_utxo:
-          type: string
+          type:
+            - string
+            - 'null'
           example: efed66f5309396ff43c8a09941c8103d9d5bbffd473ad9f13013ac89fb6b4671:0
         change_utxo:
-          type: string
+          type:
+            - string
+            - 'null'
           example: null
-        expiration:
-          type: integer
+        expiration_timestamp:
+          type:
+            - integer
+            - 'null'
           example: 1691171612
         transport_endpoints:
           type: array
@@ -2261,15 +3243,21 @@ components:
         - ReceiveBlind
         - ReceiveWitness
         - Send
+        - Inflation
     TransferStatus:
       type: string
       enum:
+        - Initiated
         - WaitingCounterparty
         - WaitingConfirmations
         - Settled
         - Failed
     TransferTransportEndpoint:
       type: object
+      required:
+        - endpoint
+        - transport_type
+        - used
       properties:
         endpoint:
           type: string
@@ -2285,6 +3273,13 @@ components:
         - JsonRpc
     UnlockRequest:
       type: object
+      required:
+        - password
+        - bitcoind_rpc_username
+        - bitcoind_rpc_password
+        - bitcoind_rpc_host
+        - bitcoind_rpc_port
+        - announce_addresses
       properties:
         password:
           type: string
@@ -2302,10 +3297,14 @@ components:
           type: integer
           example: 18443
         indexer_url:
-          type: string
+          type:
+            - string
+            - 'null'
           example: 127.0.0.1:50001
         proxy_endpoint:
-          type: string
+          type:
+            - string
+            - 'null'
           example: rpc://127.0.0.1:3000/json-rpc
         announce_addresses:
           type: array
@@ -2313,10 +3312,15 @@ components:
             type: string
             example: pub.addr.example.com:9735
         announce_alias:
-          type: string
+          type:
+            - string
+            - 'null'
           example: nodeAlias
     Unspent:
       type: object
+      required:
+        - utxo
+        - rgb_allocations
       properties:
         utxo:
           $ref: '#/components/schemas/Utxo'
@@ -2326,6 +3330,10 @@ components:
             $ref: '#/components/schemas/RgbAllocation'
     Utxo:
       type: object
+      required:
+        - outpoint
+        - btc_amount
+        - colorable
       properties:
         outpoint:
           type: string
@@ -2336,3 +3344,89 @@ components:
         colorable:
           type: boolean
           example: true
+    WebhookListResponse:
+      type: object
+      properties:
+        subscriptions:
+          type: array
+          items:
+            $ref: '#/components/schemas/WebhookSubscription'
+    WebhookSubscribeRequest:
+      type: object
+      properties:
+        url:
+          type: string
+          example: https://your-webhook-endpoint.com/webhook
+        events:
+          type: array
+          items:
+            type: string
+          example: [ReceivedSuccess, PaymentSuccess, PaymentFailed]
+        secret:
+          type: string
+          example: your-webhook-secret
+      required:
+        - url
+        - events
+    WebhookSubscribeResponse:
+      type: object
+      properties:
+        subscription_id:
+          type: string
+          example: 550e8400-e29b-41d4-a716-446655440000
+        url:
+          type: string
+          example: https://your-webhook-endpoint.com/webhook
+        events:
+          type: array
+          items:
+            type: string
+          example: [ReceivedSuccess, PaymentSuccess, PaymentFailed]
+    WebhookSubscription:
+      type: object
+      properties:
+        id:
+          type: string
+          example: 550e8400-e29b-41d4-a716-446655440000
+        url:
+          type: string
+          example: https://your-webhook-endpoint.com/webhook
+        events:
+          type: array
+          items:
+            type: string
+          example: [ReceivedSuccess, PaymentSuccess, PaymentFailed]
+        created_at:
+          type: integer
+          example: 1703123456
+        active:
+          type: boolean
+          example: true
+    WebhookUnsubscribeRequest:
+      type: object
+      properties:
+        subscription_id:
+          type: string
+          example: 550e8400-e29b-41d4-a716-446655440000
+      required:
+        - subscription_id
+    WitnessData:
+      type: object
+      required:
+        - amount_sat
+      properties:
+        amount_sat:
+          type: integer
+          example: 1000
+        blinding:
+          type:
+            - integer
+            - 'null'
+          example: 439017309
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: Biscuit
+security:
+  - bearerAuth: []
